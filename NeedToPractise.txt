@@ -1,0 +1,44 @@
+Detech duplicates in linked list *
+Count Primes (LeetCode 204) *
+Valid Perfect Square (LeetCode 367) *
+Add Digits (LeetCode 258) *
+Missing Number (LeetCode 268) *
+Greatest Common Divisor of Strings (LeetCode 1071) *
+Rotate Function (LeetCode 396)
+Water and Jug Problem (LeetCode 365) *
+Smallest Integer Divisible by K (LeetCode 1015) *
+Sum of Two Integers (LeetCode 371)
+Number of Good Pairs (LeetCode 1512)
+Minimal Spanning Tree *
+
+Simplify Path (Stack)
+Alien Dictionary
+
+Concurrency & Multithreading (10 Problems)
+
+Print FooBar Alternately
+The Dining Philosophers
+Producer-Consumer Problem
+Implement Thread Pool
+Design Bounded Blocking Queue
+Web Crawler Multithreaded
+Traffic Light Controlled Intersection
+Print Zero Even Odd
+Design Circular Buffer
+Implement Semaphore
+SQL & Database (10 Problems)
+
+Second Highest Salary
+Nth Highest Salary
+Rank Scores
+Department Top Three Salaries
+Employees Earning More Than Managers
+Customers Who Never Order
+Delete Duplicate Emails
+Trips and Users
+Human Traffic of Stadium
+Tree Node (Hierarchical Data)
+Miscellaneous (15 Problems)
+
+Integer to English Words
+Basic Calculator I/
