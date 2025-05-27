@@ -26,14 +26,19 @@ def has_duplicates(head):
 # Time Complexity: O(n log log n)
 # Space Complexity: O(n)
 def countPrimes(n):
-    if n <= 2:
+    if n < 2:
         return 0
-    sieve = [True] * n
-    sieve[0] = sieve[1] = False
+
+    is_prime = [True] * n
+    is_prime[0] = is_prime[1] = False
+
     for i in range(2, int(n ** 0.5) + 1):
-        if sieve[i]:
-            sieve[i*i : n : i] = [False] * len(sieve[i*i : n : i])
-    return sum(sieve)
+        if is_prime[i]:
+            for j in range(i * i, n, i):
+                is_prime[j] = False
+
+    return sum(is_prime)
+
 
 # 3. Valid Perfect Square (LeetCode 367)
 # Problem: Check if num is a perfect square without sqrt.
@@ -47,7 +52,7 @@ def isPerfectSquare(num):
         return True
     left, right = 2, num // 2
     while left <= right:
-        mid = left + (right - left) // 2
+        mid = (right - left) // 2
         square = mid * mid
         if square == num:
             return True
@@ -117,7 +122,12 @@ def maxRotateFunction(nums):
     return max_F
 
 # 8. Water and Jug Problem (LeetCode 365)
-# Problem: Measure target using jugs of capacities x and y.
+# Problem: 
+# You are given two jugs with capacities x liters and y liters. You have an infinite water supply.
+#  Return whether the total amount of water in both jugs may reach target using the following operations:
+# Fill either jug completely with water.
+# Completely empty either jug.
+# Pour water from one jug into another until the receiving jug is full, or the transferring jug is empty.
 # Algorithm:
 # If target > x + y, return False.
 # If target is a multiple of GCD(x, y), return True.

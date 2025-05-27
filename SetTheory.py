@@ -75,31 +75,6 @@ def findRedundantConnection(edges):
         parent[pv] = pu
     return []
 
-
-# Graph Valid Tree O(N α(N))
-# Check if a graph is a valid tree (no cycles, connected).
-# Union-Find to detect cycles.
-# Ensure all nodes are connected (edges == n-1).
-def validTree(n, edges):
-    if len(edges) != n - 1:
-        return False
-    
-    parent = [i for i in range(n)]
-    
-    def find(u):
-        while parent[u] != u:
-            parent[u] = parent[parent[u]]
-            u = parent[u]
-        return u
-    
-    for u, v in edges:
-        pu, pv = find(u), find(v)
-        if pu == pv:
-            return False
-        parent[pv] = pu
-    
-    return True
-
 # Questions was we have n elements with 3 properties each we need to group the elements. If any one of the property is common those two element should be in same group.
 # e.g.:
 # elements = {
@@ -224,39 +199,3 @@ accounts = [
 print(accountsMerge(accounts))
 # O(E × α(E) + E log E) — almost linear time because of Union-Find optimizations
 # Where E = total number of emails.
-
-# Minimum Cost to Connect All Points
-# Given 2D points, connect them with minimum total cost (Manhattan distance) using Kruskal's.
-# Key Idea:
-#   Generate all edges (Manhattan distances between points).
-#   Sort edges by weight.
-#   Use Union-Find to connect points without cycles.
-# Time: O(n² log n) (due to sorting)
-# Space: O(n²) (for edges)
-def minCostConnectPoints(points):
-    n = len(points)
-    edges = []
-    
-    # Generate all edges (Manhattan distance)
-    for i in range(n):
-        for j in range(i + 1, n):
-            dist = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])
-            edges.append((dist, i, j))
-    
-    edges.sort()  # Sort by distance
-    
-    parent = list(range(n))
-    
-    def find(u):
-        if parent[u] != u:
-            parent[u] = find(parent[u])
-        return parent[u]
-    
-    min_cost = 0
-    for dist, u, v in edges:
-        root_u, root_v = find(u), find(v)
-        if root_u != root_v:
-            parent[root_v] = root_u
-            min_cost += dist
-    
-    return min_cost

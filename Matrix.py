@@ -207,10 +207,8 @@ class Solution:
                 return
             grid[i][j] = '0'  # Mark as visited
             # Explore neighbors (up, down, left, right)
-            dfs(i+1, j)
-            dfs(i-1, j)
-            dfs(i, j+1)
-            dfs(i, j-1)
+            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+                dfs(i+dx, j+dy)
         
         for i in range(rows):
             for j in range(cols):
@@ -271,10 +269,8 @@ class Solution:
                 return
             board[i][j] = 'T'  # Mark as temporarily safe
             # Explore neighbors (up, down, left, right)
-            dfs(i+1, j)
-            dfs(i-1, j)
-            dfs(i, j+1)
-            dfs(i, j-1)
+            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+                dfs(i+dx, j+dy)
         
         # Step 1: Mark border-connected 'O's as 'T'
         for i in range(rows):
@@ -289,6 +285,101 @@ class Solution:
                     board[i][j] = 'X'
                 elif board[i][j] == 'T':
                     board[i][j] = 'O'
+
+# ### 11. Flood Fill (Leetcode 733)
+
+# **Problem Statement**:  
+# Given an image (2D array), a starting pixel (sr, sc), and a new color, replace the old color with the new color for all connected pixels of the same color.
+
+# **Example**:
+
+# Input: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, newColor = 2
+# Output: [[2,2,2],[2,2,0],[2,0,1]]
+# ```
+
+# **Algorithm** (DFS/BFS):
+# 1. Change the color of the starting pixel.
+# 2. Recursively/BFS to adjacent pixels with the same original color.
+
+# **Solution** (DFS):
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, newColor: int) -> List[List[int]]:
+        original = image[sr][sc]
+        if original == newColor:
+            return image
+        
+        rows, cols = len(image), len(image[0])
+        
+        def dfs(r, c):
+            if image[r][c] == original:
+                image[r][c] = newColor
+                for dr, dc in [(0,1),(1,0),(0,-1),(-1,0)]:
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < rows and 0 <= nc < cols:
+                        dfs(nr, nc)
+        
+        dfs(sr, sc)
+        return image
+# """
+# Time Complexity: O(M×N)
+# Space Complexity: O(M×N) - Recursion stack
+# """
+
+# ### 2. Pacific Atlantic Water Flow (Leetcode 417)
+
+# **Problem Statement**:  
+# Given an `m×n` matrix of heights, return all cells where water can flow to both the Pacific and Atlantic oceans. Water flows from higher to equal or lower heights.
+
+# **Example**:
+
+# Input: heights = [
+#     [1,2,2,3,5],
+#     [3,2,3,4,4],
+#     [2,4,5,3,1],
+#     [6,7,1,4,5],
+#     [5,1,1,2,4]
+# ]
+# Output: [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+# ```
+
+# **Algorithm**:  
+# 1. Perform **DFS** from Pacific-adjacent cells (left and top borders).
+# 2. Perform **DFS** from Atlantic-adjacent cells (right and bottom borders).
+# 3. Return the intersection of cells reachable from both oceans.
+
+# **Solution**:
+
+class Solution:
+    def pacificAtlantic(self, heights: List[List[int]]) -> List[List[int]]:
+        if not heights:
+            return []
+        
+        rows, cols = len(heights), len(heights[0])
+        pacific = set() # Cells reachable from Pacific
+        atlantic = set() # Cells reachable from atlantic
+        
+        def dfs(r, c, ocean):
+            ocean.add((r, c))
+            for dr, dc in [(0,1),(1,0),(0,-1),(-1,0)]:
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in ocean and heights[nr][nc] >= heights[r][c]: # Check if out of bounds, already visited, or height too low
+                    dfs(nr, nc, ocean)
+        
+        # Start DFS from Pacific border (top row, left column)
+        for r in range(rows):
+            dfs(r, 0, pacific) # Left column
+            dfs(r, cols-1, atlantic)  # Right column
+        for c in range(cols):
+            dfs(0, c, pacific) # Top row
+            dfs(rows-1, c, atlantic) # Bottom row
+
+         # Return cells reachable from both oceans
+        return list(pacific & atlantic)
+# """
+# Time Complexity: O(M×N) - Each cell is visited once
+# Space Complexity: O(M×N) - For the sets
+# """
 
 # Maximal Rectangle in Binary Matrix
 def maximalRectangle(matrix):

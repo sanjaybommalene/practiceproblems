@@ -3,7 +3,7 @@
 
 import heapq
 
-# Function to find the k largest elements in the array 
+# Function to find the k largest elements in the array 	O(n log k)	O(k)s
 def kLargest(arr, k):
   
     # Create a min-heap with the first k elements
@@ -36,27 +36,8 @@ if __name__ == "__main__":
 # Result: 50 30 23
 
 
-# K most Frequent Words in a File
+# K most Frequent Words in a File O(n + m log k)	O(m + k)
 ### Get K most frequent words in a file ?? Try using MinHeap
-def process_text(text, k):
-    
-    # Store Frequencies of all words
-    freq_map = Counter(text.split())
-    
-    # Get the top k frequent items
-    res = freq_map.most_common(k)
-    print(res)
-    for word, freq in res:
-        print(f'{word} : {freq}')
-
-if __name__ == '__main__':
-    text = 'Welcome to the world of Geeks Geeks for Geeks is great'
-    process_text(text, 5)
-    # to read from file
-    # with open('file.txt', 'r') as file:
-    #     text = file.read()
-    #     process_text(text, k)
-
 # Using MinHeap    O(nlogk)
 from collections import Counter
 import heapq
@@ -74,25 +55,7 @@ def k_most_frequent_words(text, k):
             heapq.heappop(min_heap)  # Remove the least frequent word
 
     # Extract results in descending order of frequency
-    return sorted(min_heap, key=lambda x: -x[0])
-
-#Using Array-O(n)
-from collections import Counter
-class Solution(object):
-    def k_most_frequent_words(text, k):
-        words = Counter(text.split())
-        freq = {i:[] for i in range(len(words) + 1)}
-        for word, count in words.items():
-            freq[count].append(word)
-        
-        res = []
-
-        for i in range(len(freq) - 1, -1, -1):
-            for word in freq[i]:
-                res.append(word)
-                if len(res) == k:
-                    return res
-                
+    return sorted(min_heap, key=lambda x: -x[0])            
 # Example Usage
 text = 'Welcome to the world of Geeks Geeks for Geeks is great'
 k = 3
@@ -101,7 +64,7 @@ print(k_most_frequent_words(text, k))
 # Kth Largest element in an array using max heap
 import heapq
 
-# Function to find the kth smallest array element
+# Function to find the kth smallest array element O(n log K)	O(K)
 def kthSmallest(arr, K):
     # Create a max heap (priority queue)
     max_heap = []
@@ -117,7 +80,7 @@ def kthSmallest(arr, K):
 
     # Return the Kth smallest element (top of the max heap, negated)
     return -max_heap[0]
-# Driver's code:
+# Driver's code
 if __name__ == "__main__":
     arr = [10, 5, 4, 3, 48, 6, 2, 33, 53, 10]
     K = 4
@@ -194,8 +157,8 @@ def minMeetingRooms(intervals):
     heap = []
     for start, end in intervals:
         if heap and heap[0] <= start:
-            heapq.heappop(heap)  # Reuse the room
-        heapq.heappush(heap, end)  # Assign a new room
+            heapq.heappop(heap)  # Reuse the room - pop
+        heapq.heappush(heap, end)  # Assign a new room - push
     return len(heap)
 
 # Meeting Rooms III
@@ -203,25 +166,76 @@ def minMeetingRooms(intervals):
 # Use two heaps (available rooms + ongoing meetings).
 # Time: O(M log N) (M = number of meetings)
 # Space: O(N)
-def mostBooked(n, meetings):
+
+import heapq
+
+def min_delay_meeting_rooms(n, meetings):
+    # Sort meetings by their start time
     meetings.sort()
-    available = list(range(n))
-    busy = []  # (end_time, room)
-    count = [0] * n
+    
+    # Initialize available rooms (0 to n-1)
+    available_rooms = list(range(n))
+    heapq.heapify(available_rooms)
+    
+    # Min-heap to track busy rooms: (end_time, room)
+    busy_rooms = []
+    
+    total_delay = 0
     
     for start, end in meetings:
-        # Free up rooms where meetings end <= start
+        # Check if any rooms have become available by the current start time
+        while busy_rooms and busy_rooms[0][0] <= start:
+            end_time, room = heapq.heappop(busy_rooms)
+            heapq.heappush(available_rooms, room)
+        
+        if available_rooms:
+            # Assign the smallest available room
+            room = heapq.heappop(available_rooms)
+            heapq.heappush(busy_rooms, (end, room))
+        else:
+            # No available rooms, delay the meeting
+            earliest_end, room = heapq.heappop(busy_rooms)
+            delay = earliest_end - start
+            total_delay += delay
+            new_end = earliest_end + (end - start)
+            heapq.heappush(busy_rooms, (new_end, room))
+    
+    return total_delay
+
+import heapq
+
+def mostBooked(n, meetings):
+    # Sort meetings by start time
+    meetings.sort()
+    
+    # Initialize available rooms (0 to n-1)
+    available = list(range(n))
+    heapq.heapify(available)
+    
+    # Busy heap: (end_time, room)
+    busy = []
+    
+    # Track meeting counts per room
+    room_counts = [0] * n
+    
+    for start, end in meetings:
+        # Free up rooms whose meetings have ended
         while busy and busy[0][0] <= start:
-            _, room = heapq.heappop(busy)
+            end_time, room = heapq.heappop(busy)
             heapq.heappush(available, room)
         
         if available:
+            # Assign the smallest available room
             room = heapq.heappop(available)
             heapq.heappush(busy, (end, room))
         else:
+            # No available rooms, use the one ending earliest
             earliest_end, room = heapq.heappop(busy)
-            heapq.heappush(busy, (earliest_end + (end - start), room))
+            new_end = earliest_end + (end - start)
+            heapq.heappush(busy, (new_end, room))
         
-        count[room] += 1
+        room_counts[room] += 1
     
-    return count.index(max(count))
+    # Find the room with maximum meetings
+    max_count = max(room_counts)
+    return room_counts.index(max_count)

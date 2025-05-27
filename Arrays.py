@@ -40,38 +40,45 @@ def find_duplicate(nums):
 nums = [3, 1, 3, 4, 2]
 print("Duplicate Number:", find_duplicate(nums))
 
-
-# Maximum Subarray 
+# Maximum Sum Subarray 
 # Kadane's Algo O(n)
-class Solution:
-    def maxSubArray(self, nums: List[int]) -> int:            
-        max_sum = current_sum = nums[0]
-        for num in nums[1:]:
-            current_sum = max(num, current_sum + num)
-            max_sum = max(max_sum, current_sum)
-        return max_sum
+def max_subarray(nums):
+    if not nums:
+        return 0
+    
+    max_current = max_global = nums[0]
+    
+    for num in nums[1:]:
+        max_current = max(num, max_current + num)
+        max_global = max(max_global, max_current)
+    
+    return max_global
 # Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
 # Output: 6
 # Explanation: The subarray [4,-1,2,1] has the largest sum 6.
 
 # Print those intervals also
-def max_subarray_with_elements(nums):
-    max_sum = current_sum = nums[0]
+def max_subarray(nums):
+    if not nums:
+        return [], 0  # Handle empty array case
+    
+    max_current = max_global = nums[0]
     start = end = temp_start = 0
-
+    
     for i in range(1, len(nums)):
-        if nums[i] > current_sum + nums[i]:
-            current_sum = nums[i]
+        if nums[i] > max_current + nums[i]: # Start i when new current max is found
+            max_current = nums[i]
             temp_start = i
         else:
-            current_sum += nums[i]
+            max_current += nums[i]
         
-        if current_sum > max_sum:
-            max_sum = current_sum
+        if max_current > max_global: # Update start and end when new global max is found
+            max_global = max_current
             start = temp_start
             end = i
-
-    return max_sum, nums[start:end + 1]
+    
+    max_subarray = nums[start : end + 1]
+    return max_subarray, max_global
 
 # Merge Intervals O(n),O(n)
 # x:x[0] should be sorted
@@ -125,57 +132,6 @@ class Solution:
             right *= nums[i]
     
         return output        
-
-# Median of Two Sorted Arrays O(log(min(m, n))) , O(1)
-# Median is the middle value in a sorted list.
-# If total length is even → median = average of two middle values.
-# If total length is odd → median = middle element.
-# Ensure nums1 is the smaller array (swap if needed for optimization).
-# Binary Search on nums1:
-# We want to partition both arrays such that:
-# Left part of both arrays has half elements
-# All elements in left ≤ all elements in right
-#   low = 0, high = m (size of nums1).
-#   partitionX = (low + high) // 2 (mid of nums1).
-#   partitionY = (m + n + 1) // 2 - partitionX (balancing point in nums2).
-# Check Partition Validity:
-#   maxLeftX = max element on the left of nums1.
-#   minRightX = min element on the right of nums1.
-#   maxLeftY = max element on the left of nums2.
-#   minRightY = min element on the right of nums2.
-#   Valid if: maxLeftX ≤ minRightY and maxLeftY ≤ minRightX.
-# Adjust Binary Search:
-#   If maxLeftX > minRightY: move high = partitionX - 1.
-#   Else: move low = partitionX + 1.
-# Compute Median:
-#   If (m + n) is even: (max(maxLeftX, maxLeftY) + min(minRightX, minRightY)) / 2.
-#   Else: max(maxLeftX, maxLeftY).
-def findMedianSortedArrays(nums1, nums2):
-    if len(nums1) > len(nums2):
-        nums1, nums2 = nums2, nums1
-
-    m, n = len(nums1), len(nums2)
-    low, high = 0, m
-
-    while low <= high:
-        i = (low + high) // 2
-        j = (m + n + 1) // 2 - i  # because total left half should have (m + n + 1)//2 elements
-
-        maxLeftX = float('-inf') if i == 0 else nums1[i - 1]
-        minRightX = float('inf') if i == m else nums1[i]
-
-        maxLeftY = float('-inf') if j == 0 else nums2[j - 1]
-        minRightY = float('inf') if j == n else nums2[j]
-
-        if maxLeftX <= minRightY and maxLeftY <= minRightX:
-            if (m + n) % 2 == 0:
-                return (max(maxLeftX, maxLeftY) + min(minRightX, minRightY)) / 2
-            else:
-                return max(maxLeftX, maxLeftY)
-        elif maxLeftX > minRightY:
-            high = i - 1
-        else:
-            low = i + 1
 
 # House Robber
 class Solution:
@@ -343,6 +299,58 @@ class Solution:
 # Travel to station 2. Your tank = 6 - 4 + 3 = 5
 # Travel to station 3. The cost is 5. Your gas is just enough to travel back to station 3.
 # Therefore, return 3 as the starting index.
+
+
+# Median of Two Sorted Arrays O(log(min(m, n))) , O(1)
+# Median is the middle value in a sorted list.
+# If total length is even → median = average of two middle values.
+# If total length is odd → median = middle element.
+# Ensure nums1 is the smaller array (swap if needed for optimization).
+# Binary Search on nums1:
+# We want to partition both arrays such that:
+# Left part of both arrays has half elements
+# All elements in left ≤ all elements in right
+#   low = 0, high = m (size of nums1).
+#   partitionX = (low + high) // 2 (mid of nums1).
+#   partitionY = (m + n + 1) // 2 - partitionX (balancing point in nums2).
+# Check Partition Validity:
+#   maxLeftX = max element on the left of nums1.
+#   minRightX = min element on the right of nums1.
+#   maxLeftY = max element on the left of nums2.
+#   minRightY = min element on the right of nums2.
+#   Valid if: maxLeftX ≤ minRightY and maxLeftY ≤ minRightX.
+# Adjust Binary Search:
+#   If maxLeftX > minRightY: move high = partitionX - 1.
+#   Else: move low = partitionX + 1.
+# Compute Median:
+#   If (m + n) is even: (max(maxLeftX, maxLeftY) + min(minRightX, minRightY)) / 2.
+#   Else: max(maxLeftX, maxLeftY).
+def findMedianSortedArrays(nums1, nums2):
+    if len(nums1) > len(nums2):
+        nums1, nums2 = nums2, nums1
+
+    m, n = len(nums1), len(nums2)
+    low, high = 0, m
+
+    while low <= high:
+        i = (low + high) // 2
+        j = (m + n + 1) // 2 - i  # because total left half should have (m + n + 1)//2 elements
+
+        maxLeftX = float('-inf') if i == 0 else nums1[i - 1]
+        minRightX = float('inf') if i == m else nums1[i]
+
+        maxLeftY = float('-inf') if j == 0 else nums2[j - 1]
+        minRightY = float('inf') if j == n else nums2[j]
+
+        if maxLeftX <= minRightY and maxLeftY <= minRightX:
+            if (m + n) % 2 == 0:
+                return (max(maxLeftX, maxLeftY) + min(minRightX, minRightY)) / 2
+            else:
+                return max(maxLeftX, maxLeftY)
+        elif maxLeftX > minRightY:
+            high = i - 1
+        else:
+            low = i + 1
 
 # Range Minimum Query (RMQ)
 # Problem:

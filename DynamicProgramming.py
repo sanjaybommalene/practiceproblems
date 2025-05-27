@@ -24,6 +24,7 @@ class Solution:
         return s[left + 1:right]
 
 # Longest Common Subsequence   
+# Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.
 # 2D Array O(mxn), O(mxn)
 def lcs_string(text1, text2):
     m, n = len(text1), len(text2)
@@ -108,6 +109,18 @@ class Solution:
 
 # Minimum Sum Path from start to end O(mn), O(1)
 # summate 1st col and 1row, sum of (min of row-1 and col-1), last grid[-1][-1]
+# [1, 3, 1]
+# [1, 5, 1]
+# [4, 2, 1]
+
+# After Row, Column Computation
+# [1, 4, 5]
+# [2, 5, 1]
+# [6, 2, 1]
+
+# [1, 4, 5]
+# [2, 7, 6]
+# [6, 8, 7]
 class Solution:
     def minPathSum(self, grid: List[List[int]]) -> int:
         m, n = len(grid), len(grid[0])
@@ -122,6 +135,27 @@ class Solution:
         return grid[-1][-1]
 
 # if grid modification is not allowed
+def min_path_sum_dp(grid):
+    rows, cols = len(grid), len(grid[0])
+    dp = [[0] * cols for _ in range(rows)]
+
+    dp[0][0] = grid[0][0]
+
+    # Fill first row
+    for col in range(1, cols):
+        dp[0][col] = dp[0][col - 1] + grid[0][col]
+
+    # Fill first column
+    for row in range(1, rows):
+        dp[row][0] = dp[row - 1][0] + grid[row][0]
+
+    # Fill rest of dp table
+    for row in range(1, rows):
+        for col in range(1, cols):
+            dp[row][col] = min(dp[row - 1][col], dp[row][col - 1]) + grid[row][col]
+
+    return dp[-1][-1]
+
 def minPathSum(grid):
     m, n = len(grid), len(grid[0])
     dp = [0] * n
@@ -139,6 +173,11 @@ def minPathSum(grid):
     return dp[-1]
 
 # Combination Sum 4 [four integers == target] O(target * len(nums)), O(target)
+# Given an array of distinct integers nums and a target integer target, return the number of possible combinations that add up to target.
+# The test cases are generated so that the answer can fit in a 32-bit integer.
+# Example 1:
+# Input: nums = [1,2,3], target = 4
+# Output: 7
 def combinationSum4(nums, target):
     dp = [0] * (target + 1)
     dp[0] = 1  # Base case: one way to make sum (using no numbers)
@@ -169,7 +208,28 @@ class Solution:
             prev1 = cur
         
         return cur
-    
+   
+# Word Break O(n³)	O(n)
+def wordBreak(s, wordDict):
+    word_set = set(wordDict)
+    dp = [False] * (len(s) + 1)
+    dp[0] = True
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if dp[j] and s[j:i] in word_set:
+                dp[i] = True
+                break
+    return dp[-1]
+# Input: s = "leetcode", wordDict = ["leet","code"]
+# Output: true
+# Explanation: Return true because "leetcode" can be segmented as "leet code".
+# Visualization (s = "leetcode", wordDict = ["leet", "code"])**
+
+# Initialize dp = [True, False, ..., False] (length 9).
+# dp[4] = True ("leet" found).
+# dp[8] = True ("code" found and dp[4] is True).
+
+ 
 # Coins Change, fewest number of coins O(amount * len(coins)), O(amount)
 def coinChange(coins, amount):
     dp = [float('inf')] * (amount + 1)
@@ -247,26 +307,6 @@ def generate(numRows):
 # Row 1: [1, 1]
 # Row 2: [1, 2, 1]  # 2 = 1 + 1
 # Row 3: [1, 3, 3, 1]  # 3 = 1 + 2, 3 = 2 + 1
-
-# Word Break O(n³)	O(n)
-def wordBreak(s, wordDict):
-    word_set = set(wordDict)
-    dp = [False] * (len(s) + 1)
-    dp[0] = True
-    for i in range(1, len(s) + 1):
-        for j in range(i):
-            if dp[j] and s[j:i] in word_set:
-                dp[i] = True
-                break
-    return dp[-1]
-# Input: s = "leetcode", wordDict = ["leet","code"]
-# Output: true
-# Explanation: Return true because "leetcode" can be segmented as "leet code".
-# Visualization (s = "leetcode", wordDict = ["leet", "code"])**
-
-# Initialize dp = [True, False, ..., False] (length 9).
-# dp[4] = True ("leet" found).
-# dp[8] = True ("code" found and dp[4] is True).
 
 # Decode Ways O(n),O(n)
 # Let dp[i] = number of ways to decode up to s[0...i-1].

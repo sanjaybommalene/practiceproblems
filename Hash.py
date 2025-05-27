@@ -67,53 +67,6 @@ class Solution:
 # Output: 4
 # Explanation: The longest consecutive elements sequence is [1, 2, 3, 4]. Therefore its length is 4.
 
-# Subarray Sum Equals K O(N)
-# Iterate through nums:
-# Update prefix_sum += nums[i].
-# If prefix_sum - k exists in sum_map, add sum_map[prefix_sum - k] to count.
-# Increment sum_map[prefix_sum] by 1.
-class Solution:
-    def subarraySum(self, nums: List[int], k: int) -> int:
-        sub_num = {0:1}
-        prefix_sum = count = 0
-
-        for n in nums:
-            prefix_sum+=n
-
-            if prefix_sum - k in sub_num:
-                count+=sub_num[prefix_sum-k]
-            
-            sub_num[prefix_sum] = 1+sub_num.get(prefix_sum, 0)
-        return count
-
-# Input: nums = [1,1,1], k = 2
-# Output: 2
-
-# Input: nums = [1,2,3], k = 3
-# Output: 2
-
-# Subarray Sum Equals K O(N^2),O(N) Return SubArray
-
-def subarraySum(nums, k):
-    prefix_sum = 0
-    sum_map = {}
-    sum_map[0] = [-1]  # Base case for subarrays starting at index 0
-    result = []
-
-    for i, num in enumerate(nums):
-        prefix_sum += num
-        # Check if (prefix_sum - k) exists in the map
-        if prefix_sum - k in sum_map:
-            for start in sum_map[prefix_sum - k]:
-                result.append(nums[start + 1 : i + 1])
-        # Update the map with the current prefix_sum
-        if prefix_sum in sum_map:
-            sum_map[prefix_sum].append(i)
-        else:
-            sum_map[prefix_sum] = [i]
-    
-    return result
-
 # Ransom Note
 # Given two strings ransomNote and magazine, return true if ransomNote can be constructed by using the letters from magazine and false otherwise.
 # Counting each character.
@@ -157,22 +110,6 @@ class Solution:
 # Mapping 'e' to 'a'.
 # Mapping 'g' to 'd'.
 
-# Word Pattern
-# Given a pattern and a string s, find if s follows the same pattern.
-# Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in s. Specifically:
-# Each letter in pattern maps to exactly one unique word in s.
-# Each unique word in s maps to exactly one letter in pattern.
-# No two letters map to the same word, and no two words map to the same letter.
-# A bijection is both onto and one-to-one. 
-class Solution:
-    def wordPattern(self, pattern: str, s: str) -> bool:
-
-        s = s.split()
-
-        return (len(set(pattern)) ==
-                len(set(s)) ==
-                len(set(zip_longest(pattern,s))))
-    
 # Write an algorithm to determine if a number n is happy.
 # A happy number is a number defined by the following process:
 # Starting with any positive integer, replace the number by the sum of the squares of its digits.
@@ -220,3 +157,63 @@ class Solution:
 # Output: true
 # Input: nums = [1,2,3,1,2,3], k = 2
 # Output: false
+
+# Word Pattern
+# Given a pattern and a string s, find if s follows the same pattern.
+# Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in s. Specifically:
+# Each letter in pattern maps to exactly one unique word in s.
+# Each unique word in s maps to exactly one letter in pattern.
+# No two letters map to the same word, and no two words map to the same letter.
+# A bijection is both onto and one-to-one. 
+class Solution:
+    def wordPattern(self, pattern: str, s: str) -> bool:
+
+        s = s.split()
+
+        return (len(set(pattern)) ==
+                len(set(s)) ==
+                len(set(zip_longest(pattern,s))))
+
+# Subarray Sum Equals K O(N)
+# Iterate through nums:
+# Update prefix_sum += nums[i].
+# If prefix_sum - k exists in sum_map, add sum_map[prefix_sum - k] to count.
+# Increment sum_map[prefix_sum] by 1.
+class Solution:
+    def subarraySum(self, nums: List[int], k: int) -> int:
+        sub_num = {0:1}
+        prefix_sum = count = 0
+
+        for n in nums:
+            prefix_sum+=n
+
+            if prefix_sum - k in sub_num:
+                count+=sub_num[prefix_sum-k]
+            
+            sub_num[prefix_sum] = 1+sub_num.get(prefix_sum, 0)
+        return count
+# Input: nums = [1,1,1], k = 2
+# Output: 2
+# Input: nums = [1,2,3], k = 3
+# Output: 2
+
+# Subarray Sum Equals K O(N^2),O(N) Return SubArray
+def subarraySum(nums, k):
+    prefix_sum = 0
+    sum_map = {}
+    sum_map[0] = [-1]  # Base case for subarrays starting at index 0
+    result = []
+
+    for i, num in enumerate(nums):
+        prefix_sum += num
+        # Check if (prefix_sum - k) exists in the map
+        if prefix_sum - k in sum_map:
+            for start in sum_map[prefix_sum - k]:
+                result.append(nums[start + 1 : i + 1])
+        # Update the map with the current prefix_sum
+        if prefix_sum in sum_map:
+            sum_map[prefix_sum].append(i)
+        else:
+            sum_map[prefix_sum] = [i]
+    
+    return result

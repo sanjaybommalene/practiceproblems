@@ -179,15 +179,15 @@ class Solution:
         return result
 
     # Merge sort for linked list
-    def merge_sort(head):
+    def merge_sort(self,head):
         if not head or not head.next:
             return head
-        middle = get_middle(head)
+        middle = self.get_middle(head)
         next_to_middle = middle.next
         middle.next = None
-        left = merge_sort(head)
-        right = merge_sort(next_to_middle)
-        sorted_list = sorted_merge(left, right)
+        left = self.merge_sort(head)
+        right = self.merge_sort(next_to_middle)
+        sorted_list = self.sorted_merge(left, right)
         return sorted_list
 
     # Utility function to print linked list
@@ -251,17 +251,24 @@ class Solution:
         return True   
 
 # Remove nth-node from linked list O(N),O(1)
-class Solution:
-    def removeNthFromEnd(self, head: Optional[ListNode], n: int) -> Optional[ListNode]:
-        res = ListNode(0, head)
-        dummy = res
-        for i in range(n):
-            head = head.next
-        while head:
-            dummy = dummy.next
-            head = head.next
-        dummy.next = dummy.next.next
-        return res.next
+def removeNthFromEnd(head, n):
+    dummy = ListNode(0)
+    dummy.next = head
+    fast = slow = dummy
+    
+    # Move fast n steps ahead
+    for _ in range(n):
+        fast = fast.next
+    
+    # Move both until fast reaches the end
+    while fast.next:
+        fast = fast.next
+        slow = slow.next
+    
+    # Remove the nth node from the end
+    slow.next = slow.next.next
+    
+    return dummy.next
     # [1,2,3,4,5]
     #    d   h
     # r
@@ -299,6 +306,14 @@ class Solution:
     # Explanation: 342 + 465 = 807.
 
 # Remove Duplicates in Sorted Linked List
+def deleteDuplicates(head):
+    current = head
+    while current and current.next:
+        if current.val == current.next.val:
+            current.next = current.next.next
+        else:
+            current = current.next
+    return head
 class Solution:
     def deleteDuplicates(self, head: Optional[ListNode]) -> Optional[ListNode]:
         if not head or not head.next:
@@ -355,26 +370,28 @@ class Solution:
     
 # Partition Linked List
 # Given the head of a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x.
-class Solution:
-    def partition(self, head: Optional[ListNode], x: int) -> Optional[ListNode]:
-
-        slist, blist = ListNode(), ListNode()
-        small, big = slist, blist # dummy lists
-
-        while head:
-            if head.val < x:
-                small.next = head
-                small = small.next
-            else:
-                big.next = head
-                big = big.next
-
-            head = head.next
-
-        small.next = blist.next
-        big.next = None # prevent linked list circle
-
-        return slist.next
+def partition(head, x):
+    # Dummy nodes to simplify merging
+    before_head = ListNode(0)
+    after_head = ListNode(0)
+    before = before_head
+    after = after_head
+    
+    current = head
+    while current:
+        if current.val < x:
+            before.next = current
+            before = before.next
+        else:
+            after.next = current
+            after = after.next
+        current = current.next
+    
+    # Connect the two lists
+    before.next = after_head.next
+    after.next = None  # Terminate the list
+    
+    return before_head.next
     
 # Swap Node pair
 # Keep the second node and next pair node
@@ -436,7 +453,7 @@ class Solution:
         if left == right:
             return lists[left]
 
-        mid = left + (right - left) // 2
+        mid = (right-left) // 2
         l1 = self.divideAndConquer(lists, left, mid)
         l2 = self.divideAndConquer(lists, mid + 1, right)
         return self.mergeTwoLists(l1, l2)

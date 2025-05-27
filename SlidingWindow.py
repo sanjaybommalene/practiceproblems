@@ -95,3 +95,30 @@ class Solution:
 # Explanation:
 # The substring with start index = 0 is "cba", which is an anagram of "abc".
 # The substring with start index = 6 is "bac", which is an anagram of "abc".
+
+# Sliding Window Rate Limiting Algorithm
+from collections import deque
+from time import time
+
+class SlidingWindowRateLimiter:
+    def __init__(self, max_requests, window_seconds):
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.request_log = deque()
+
+    def allow_request(self):
+        current_time = time()
+        # Remove requests older than the window
+        while self.request_log and self.request_log[0] <= current_time - self.window_seconds:
+            self.request_log.popleft()
+        # Check if within limit
+        if len(self.request_log) < self.max_requests:
+            self.request_log.append(current_time)
+            return True
+        return False
+
+# Example: Allow 5 requests per 10 seconds
+limiter = SlidingWindowRateLimiter(5, 10)
+print(limiter.allow_request())  # True (1st request)
+print(limiter.allow_request())  # True (2nd request)
+# ... after 5 requests, further calls return False.

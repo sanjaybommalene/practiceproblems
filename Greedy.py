@@ -1,12 +1,12 @@
 # Jump Game
 # Start from last but one element and check jump
 class Solution:
-    def canJump(self, nums: List[int]) -> bool:
+    def canJump(nums):
         goal = len(nums) - 1
 
-        for i in range(len(nums)-2,-1,-1):
-            if i + nums[i]>=goal:
-                goal = i
+        for idx in range(len(nums)-2,-1,-1):
+            if idx + nums[idx]>=goal:
+                goal = idx
 
         return True if goal==0 else False
     
@@ -15,24 +15,29 @@ class Solution:
 # Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
 
 # Jump Game - Find Minimum Jumps required
-# Keep nearest and farthest points
-class Solution:
-    def jump(self, nums: List[int]) -> int:
-        near = far = jumps = 0
-
-        while far < len(nums)-1:
-            farthest = 0
-            for i in range(near,far+1):
-                farthest = max(farthest,i+nums[i])
-            near = far+1
-            far = farthest
-            jumps+=1
-        return jumps
+def jump(nums):
+    if len(nums) <= 1:
+        return 0
+    
+    jumps = 0
+    current_end = 0
+    max_reach = 0
+    
+    for i in range(len(nums) - 1):
+        max_reach = max(max_reach, i + nums[i])
+        
+        if i == current_end: # Check for jump necessity
+            jumps += 1
+            current_end = max_reach
+            
+            if current_end >= len(nums) - 1: # Reached end of the Array
+                break
+    
+    return jumps
 # Input: nums = [2,3,1,1,4]
 # Output: 2
 # Explanation: The minimum number of jumps to reach the last index is 2. Jump 1 step from index 0 to 1, 
 # then 3 steps to the last index.
-
 
 # Best Time to buy and sell a stock
 class Solution:

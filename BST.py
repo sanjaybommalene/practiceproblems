@@ -1,4 +1,10 @@
 # Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, key):
+        self.left = None
+        self.right = None
+        self.val = key
+
 class BinarySearchTree:
     def __init__(self):
         self.root = None
@@ -248,59 +254,6 @@ class Solution(object):
         if not root:
             return True
         return ismirror(root.left,root.right)
-    
-# Max Depth of a Binary Tree
-# Using DFS
-# 1 + max(left, right)
-def maxDepth(self, root):
-        """
-        :type root: Optional[TreeNode]
-        :rtype: int
-        """
-        if not root:
-            return 0
-        return 1+max(self.maxDepth(root.left),self.maxDepth(root.right))
-#Using BFS
-# Take root and check for right and left if it has child, then increase depth
-class Solution(object):
-    def maxDepth(self, root):
-        if not root:
-            return 0
-        
-        q = deque()
-        q.append(root)
-        depth = 0
-        
-        while q:
-            depth += 1
-            
-            for _ in range(len(q)):
-                node = q.popleft()
-                if node.left:
-                    q.append(node.left)
-                if node.right:
-                    q.append(node.right)
-        
-        return depth  
- 
-# Diameter of Binary Tree
-class Solution:
-    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
-        res = 0 
-        def dfs(root):
-            if not root:
-                return 0
-            
-            l = dfs(root.left)
-            r = dfs(root.right)
-
-            nonlocal res
-            res = max(res, l + r)
-
-            return 1 + max(l, r)
-
-        dfs(root)
-        return res
 
 # Same Tree
 class Solution:
@@ -322,15 +275,145 @@ def get_leaves(root, leaves):
         return
     get_leaves(root.left, leaves)
     get_leaves(root.right, leaves)
+  
+# Max Depth of a Binary Tree
+# Using DFS
+# 1 + max(left, right)
+def maxDepth(self, root):
+        """
+        :type root: Optional[TreeNode]
+        :rtype: int
+        """
+        if not root:
+            return 0
+        return 1+max(self.maxDepth(root.left),self.maxDepth(root.right))
+#Using BFS
+# Take root and check for right and left if it has child, then increase depth
+class Solution(object):
+    def maxDepth(self, root):
+        if not root:
+            return 0
+        
+        queue = deque()
+        queue.append(root)
+        depth = 0
+        
+        while queue:
+            depth += 1
+            
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+        
+        return depth  
+ 
+# Diameter of Binary Tree (O(n)), (O(h))
+# The diameter of a Binary Search Tree (BST) (or any binary tree) is defined as the longest path between any two nodes in the tree. This path may or may not pass through the root.
+# Explanation of DFS Approach
+
+# Recursive Height Calculation:
+#   For each node, compute the height of its left and right subtrees.
+# Update Diameter:
+#   The diameter passing through the current node is left_height + right_height.
+#   Track the maximum diameter encountered.
+# Return Height:
+#   Each node returns its height (1 + max(left_height, right_height)).
+def diameterOfBST(root):
+    diameter = 0
+
+    def height(node):
+        nonlocal diameter
+        if not node:
+            return 0
+        left_height = height(node.left)
+        right_height = height(node.right)
+        diameter = max(diameter, left_height + right_height)
+        return 1 + max(left_height, right_height)
+
+    height(root)
+    return diameter
+# Example BST:
+#       10
+#      /  \
+#     5    20
+#         /  \
+#       15    30
+#            /
+#          25
+# root = TreeNode(10)
+# root.left = TreeNode(5)
+# root.right = TreeNode(20)
+# root.right.left = TreeNode(15)
+# root.right.right = TreeNode(30)
+# root.right.right.left = TreeNode(25)
+
+# Approach
+# Compute Heights & Track Diameter Path:
+# For each node, calculate the heights of left and right subtrees.
+# If left_height + right_height is greater than the current diameter, update the diameter and store the path.
+# Backtrack the Path:
+# Once the diameter is found, backtrack from the deepest nodes to reconstruct the path.
+def diameterOfBSTWithPath(root):
+    if not root:
+        return 0, []
+
+    diameter = 0
+    path = []
+
+    def height(node):
+        nonlocal diameter, path
+        if not node:
+            return 0, []
+        
+        left_height, left_path = height(node.left)
+        right_height, right_path = height(node.right)
+        
+        # Update diameter and path if current node's path is longer
+        if left_height + right_height > diameter:
+            diameter = left_height + right_height
+            path = left_path + [node.val] + right_path[::-1]  # Combine left, current, right (reversed)
+        
+        # Return the longer subtree's height and path
+        if left_height > right_height:
+            return left_height + 1, left_path + [node.val]
+        else:
+            return right_height + 1, right_path + [node.val]
+
+    height(root)
+    return diameter, path
+
+# Max Sum Path in BST
+# Use DFS
+class Solution(object):
+    def maxPathSum(self, root):
+        self.max_sum = float('-inf')
+        self.dfs(root)
+        return self.max_sum
+    
+    def dfs(self, node):
+        if not node:
+            return 0
+        
+        left_max = max(self.dfs(node.left), 0)  # Ignore negative sums
+        right_max = max(self.dfs(node.right), 0)
+        
+        current_path_sum = node.val + left_max + right_max
+        self.max_sum = max(self.max_sum, current_path_sum)
+        
+        return node.val + max(left_max, right_max)  # Choose left or right path for parent
+
 
 # Path Sum I equal to target
 # If present or not
 class Solution:
-    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+    def hasPathSum(self, root, targetSum):
         if not root:
             return False
         
-        if not root.left and not root.right:
+        if not root.left and not root.right: # Reached Leaf Node
             return targetSum - root.val == 0
         
         targetSum -= root.val
@@ -338,7 +421,7 @@ class Solution:
         return self.hasPathSum(root.left, targetSum) or self.hasPathSum(root.right, targetSum)
 
 
-# Path Sum II
+# Path Sum II DFS + Backtrack Till Leaf
 # find all root-to-leaf paths in a binary tree where the sum of the node values along the path equals a given target sum. 
 # The solution involves traversing the tree using a depth-first search (DFS) approach, keeping track of the current path and
 # the current sum of node values in that path. When we reach a leaf node, we check if the current sum matches the target sum, and if it does, we add the current path to our result list.
@@ -349,24 +432,24 @@ class Solution:
 # Result Compilation: The result list, which contains all valid paths, is returned after the DFS traversal completes.
 class Solution:
     def pathSum(self, root: Optional[TreeNode], targetSum: int) -> List[List[int]]:
-        def dfs(node, current_sum, current_path, result):
+        def hasPathSum(node, current_sum, current_path, result):
             if not node:
                 return
-            current_path.append(node.val)
+            current_path.append(node.val) # Backtrack
             current_sum += node.val
-            if not node.left and not node.right:
+            if not node.left and not node.right: # Reached Leaf Node
                 if current_sum == targetSum:
                     result.append(list(current_path))
             else:
-                dfs(node.left, current_sum, current_path, result)
-                dfs(node.right, current_sum, current_path, result)
-            current_path.pop()
+                hasPathSum(node.left, current_sum, current_path, result)
+                hasPathSum(node.right, current_sum, current_path, result)
+            current_path.pop() # Backtrack
         
         result = []
-        dfs(root, 0, [], result)
+        hasPathSum(root, 0, [], result)
         return result
 
-# Path sum III equal to Target
+# Path sum III equal to Target - return count
 # 1. Use a Hash Map (prefixSumCount):
 # # Store prefix sums and their counts to track the number of times each sum has appeared.
 # 2. Depth-First Search (DFS) Traversal:
@@ -399,44 +482,34 @@ class Solution(object):
         
         return count
 
-# Max Sum Path in BST
-# Use DFS
-class Solution:
-    def maxPathSum(self, root: Optional[TreeNode]) -> int:
-        # res = [float('-inf')] Python 2
-        res = root.val 
-
-        def dfs(node):
-            nonlocal res # Not Needed in python 2
-
-            if not node:
-                return 0
-            
-            # recursively compute the maximum sum of the left and right subtree paths
-            left_sum = max(0, dfs(node.left))
-            right_sum = max(0, dfs(node.right))
-
-            # update the maximum path sum encountered so far(with split)
-            res = max(res, left_sum + right_sum + node.val)
-
-            # return the maximum sum of the path(without split)
-            return max(left_sum, right_sum) + node.val
-
-        dfs(root)
-        return res
    
 # Lowest Common Ancestor of a Binary Tree
+# The Lowest Common Ancestor (LCA) of two nodes in a Binary Tree is the deepest node that has both nodes as descendants (where we allow a node to be a descendant of itself).
+#      3
+#     / \
+#    5   1
+#   / \ / \
+#  6  2 0  8
+#    / \
+#   7   4
+# LCA of 5 and 1 → 3
+# LCA of 5 and 4 → 5 (since 5 is an ancestor of 4)
+# Approach to Find LCA
+# 1. Recursive DFS (Optimal)
+#   Traverse the tree recursively.
+#   If either p or q is found, return the node.
+#   If a node has both left and right subtrees returning non-null, it is the LCA.
 class Solution:
     def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
-        if not root or root == p or root == q:
+        if not root or root == p or root == q: # If either p or q matches the current root, return the root
             return root
         
-        left = self.lowestCommonAncestor(root.left, p, q)
+        left = self.lowestCommonAncestor(root.left, p, q) # Search for p and q in the left and right subtrees.
         right = self.lowestCommonAncestor(root.right, p, q)
 
-        if left and right:
+        if left and right: # If both subtrees return non-null, root is the LCA.
             return root
-        return left or right  
+        return left or right  # If only one subtree returns non-null, propagate that result upwards.
    
 # Invert Binary Tree
 # Swap left child to right child
@@ -452,15 +525,10 @@ class Solution(object):
         self.invertTree(root.right)
         return root
 
-#Kth Smallest in the BST / For largest, just reverse inorder.left->right
-#Use Inorder
+# Kth Smallest in the BST / For largest, just reverse inorder.left->right
+# Convert BST to array by Using Inorder
 class Solution(object):
     def kthSmallest(self, root, k):
-        """
-        :type root: Optional[TreeNode]
-        :type k: int
-        :rtype: int
-        """
         values = []
         self.inorder(root, values)
         return values[k - 1]
@@ -471,9 +539,14 @@ class Solution(object):
         values.append(root.val)
         self.inorder(root.right,values)
 
-
- 
 # BT-Right Side View - Use BFS
+#      3
+#     / \
+#    5   1
+#   / \ / \
+#  6  2 0  8
+#    / \
+#   7   4
 class Solution:
     def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
         res = []
@@ -514,3 +587,88 @@ class Solution:
 
         return build(preorder, inorder)
     
+# Expression Tree
+# Post-Order Traversal (DFS):
+# Evaluate left subtree
+# Evaluate right subtree
+# Apply the operator at the current node to the results from left and right
+def evaluateExpressionTree(root):
+    if not root:
+        return 0
+    
+    # Leaf nodes are numbers
+    if not root.left and not root.right:
+        return int(root.val)
+    
+    # Recursively evaluate left and right subtrees
+    left_val = evaluateExpressionTree(root.left)
+    right_val = evaluateExpressionTree(root.right)
+    
+    # Apply the operator
+    if root.val == '+':
+        return left_val + right_val
+    elif root.val == '-':
+        return left_val - right_val
+    elif root.val == '*':
+        return left_val * right_val
+    elif root.val == '/':
+        return left_val // right_val  # Integer division
+    
+# Example Usage
+# root = TreeNode('*')
+# root.left = TreeNode('+')
+# root.right = TreeNode('3')
+# root.left.left = TreeNode('2')
+# root.left.right = TreeNode('5')
+
+# print(evaluateExpressionTree(root))  # Output: 21 (which is (2 + 5) * 3)
+
+
+# Time & Space Complexity Table
+# Problem	                 Time 	Space  Approach Used
+# Sorted Array to BST	     O(N)	O(log N) (recursion stack)	Divide & Conquer (Mid = Root)
+# Check BST Validity	     O(N)	O(H) (height of tree)	Inorder Traversal / DFS
+# Check Symmetric Tree	     O(N)	O(H)	DFS (Mirror Comparison)
+# Max Depth of Binary Tree	 O(N)	O(H)	DFS / BFS
+# Print Leaves	             O(N)   O(H)	DFS
+# Path Sum I (Target Exists) O(N)	O(H)	DFS
+# Path Sum II (All Paths)	 O(N²)  O(N) 	DFS + Backtracking
+# Path Sum III (Count Paths) O(N²) 	O(N)	DFS + Prefix Sum (Optimized)
+# Lowest Common Ancestor   	 O(N)	O(H)	DFS (Post-order)
+# Max Sum Path in BST	     O(N)	O(H)	DFS (Post-order)
+# Invert Binary Tree	     O(N)	O(H)	DFS / BFS
+# Kth Smallest in BST	     O(N) 	O(H)	Inorder Traversal
+# Right Side View (BFS)	     O(N)	O(W) 	BFS (Level-order)
+# Expression Tree Evaluation O(N)	O(H)	Post-order DFS
+
+
+from collections import deque, defaultdict
+
+def diagonalTraversal(root):
+    if not root:
+        return []
+
+    # Use a dict to collect nodes at each diagonal level
+    diagonal_map = defaultdict(list)
+    queue = deque()
+    
+    # Queue contains pairs of (node, diagonal level)
+    queue.append((root, 0))
+    
+    while queue:
+        node, d = queue.popleft()
+        
+        while node:
+            diagonal_map[d].append(node.val)
+            if node.left:
+                queue.append((node.left, d + 1))
+            node = node.right  # stay on the same diagonal
+
+    # Collect results sorted by diagonal level
+    result = []
+    for key in sorted(diagonal_map.keys()):
+        result.append(' '.join(map(str, diagonal_map[key])))
+    
+    return result
+Time: O(N) – each node is visited once.
+Space: O(N) – space for queue and map.

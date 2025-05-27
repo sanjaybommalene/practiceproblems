@@ -10,11 +10,21 @@ Smallest Integer Divisible by K (LeetCode 1015) *
 Sum of Two Integers (LeetCode 371)
 Number of Good Pairs (LeetCode 1512)
 Minimal Spanning Tree *
-
+Longest path in DAG/Tree
+Car Pooling
 Simplify Path (Stack)
 Alien Dictionary
-
+Leet 443
+mini ops to make almost sorted to sorted (LIS)
 Concurrency & Multithreading (10 Problems)
+Given a list of directed edges[ui, vi] and a list of queries[ai, bi] , return a list of integers, where each element is the number of hops to reach from ai to bi
+Given two strings s1 and s2, which contain alphabets and # (where # indicates a backspace), return true if s1 = s2 after applying all backspaces, false otherwise.
+https://leetcode.com/problems/longest-substring-of-all-vowels-in-order/description/
+Ques 2: Minimum insertions in the string to make it palindrome. Insertions can happen anywhere in string.
+Input: s = "abcda"
+Output: 2
+above string can be inserted with 2 more characters to make it palindrome.
+d and b can be inserted -> "abdcdba"
 
 Print FooBar Alternately
 The Dining Philosophers

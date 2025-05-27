@@ -84,17 +84,26 @@ class Solution:
 # XOR all numbers to get xor = a ^ b (the two unique numbers).
 # Find the rightmost set bit in xor to partition the array into two groups.
 # XOR numbers in each group to isolate a and b.
+# Partitioning by a set bit ensures a and b are in different groups.
+# Input: [1, 2, 1, 3, 2, 5]
+# Step 1: Compute xor = 1 ^ 2 ^ 1 ^ 3 ^ 2 ^ 5 = 3 ^ 5 = 6 (110 in binary).
+# Step 2: diff_bit = 6 & -6 = 2 (010 in binary).
+# Step 3: Partition:
 
+# Group 1 (bit 010 set): [2, 2, 3] → 2 ^ 2 ^ 3 = 3 (a).
+# Group 2 (bit 010 not set): [1, 1, 5] → 1 ^ 1 ^ 5 = 5 (b).
+# Output: [3, 5].
 def singleNumber(nums):
     xor = 0
     for num in nums:
         xor ^= num  # Get a ^ b
     
-    # Find rightmost set bit
+    # Find rightmost set bit 2's complement
     diff_bit = xor & -xor
     
     a, b = 0, 0
     for num in nums:
+        # Partitioning by a set bit ensures a and b are in different groups.
         if num & diff_bit:
             a ^= num  # Group with bit set
         else:

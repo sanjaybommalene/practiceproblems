@@ -70,7 +70,7 @@ def combinationSum3(k: int, n: int) -> List[List[int]]:
     res = []
     backtrack(1, [], k, n)
     return res
-# Time: O(C(9,k)), where C(9,k) is the number of combinations of k numbers from 1 to 9 (worst case).
+# Time: O(C(9,k)), = O(2^9 . k) where C(9,k) is the number of combinations of k numbers from 1 to 9 (worst case).
 # Space: O(k) for the recursion stack (excluding the result storage).
 # Input: k = 3, n = 7
 # Output: [[1,2,4]]
@@ -102,10 +102,10 @@ def combinationSumK(nums, k, target):
     result = []
     nums.sort()  # Sort to avoid duplicate combinations in different orders
     backtrack(0, [], target, 0)
-    return result
-    
-# nums = [1,2,7,6,3]
+    return result    
+# nums = [1,2,7,6,3,4,2,6,5,4,3]
 # target = 11
+# [[4, 7], [4, 7], [5, 6], [5, 6]]
 # print(combinationSumK(nums,2,target))
 
 # Generate Unique Subsets
@@ -134,7 +134,7 @@ class Solution(object):
         def backtrack(start, subset):
             result.append(subset[:])
             for i in range(start, len(nums)):
-                if i > start and nums[i] == nums[i - 1]:
+                if i > start and nums[i] == nums[i - 1]: # Skip duplicates if i > start i.e # we are not at the first element of the current subset
                     continue
                 subset.append(nums[i])
                 backtrack(i + 1, subset)
@@ -149,7 +149,7 @@ class Solution(object):
 
 # Permutations of numbers in array O(n×n!), O(n!) where n! is the number of permutations, and each permutation takes O(n)O(n) time to copy.
 class Solution:
-    def permute(self, nums: List[int]) -> List[List[int]]:
+    def permute(self, nums):
 
         def backtrack(start):
             if start == len(nums):
@@ -158,7 +158,7 @@ class Solution:
             
             for i in range(start, len(nums)):
                 nums[start], nums[i] = nums[i], nums[start]  # Swap
-                backtrack(start + 1)                          # Recurse
+                backtrack(start + 1)                          # Recurse, Using start + 1 
                 nums[start], nums[i] = nums[i], nums[start]  # Undo swap (backtrack)
 
         res = []
@@ -166,12 +166,13 @@ class Solution:
         return res
 # Input: nums = [1,2,3]
 # Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+# [[1, 2, 3, 4], [1, 2, 4, 3], [1, 3, 2, 4], [1, 3, 4, 2], [1, 4, 3, 2]..
 
 # Permutations II, O(n×n!), O(n!) input may contain duplicate
 def permuteUnique(nums):
     def backtrack(path, used):
         if len(path) == len(nums):
-            res.append(path.copy())
+            res.append(path[:])
             return
         for i in range(len(nums)):
             if used[i] or (i > 0 and nums[i] == nums[i-1] and not used[i-1]):
@@ -221,17 +222,21 @@ class GenerateParentheses:
 def partition(s):
     def is_palindrome(sub):
         return sub == sub[::-1]
-
-    def backtrack(start, comb):
+    
+    def backtrack(start, path):
         if start == len(s):
-            res.append(comb[:])
+            result.append(path[:])
             return
-        for end in range(start+1,len(s)+1):
-            if is_palindrome(s[start:end]):
-                backtrack(end,comb+[s[start:end]])
-    res = []
+        for end in range(start + 1, len(s) + 1):
+            prefix = s[start:end]
+            if is_palindrome(prefix):
+                path.append(prefix)
+                backtrack(end, path)
+                path.pop()  # Backtrack
+    
+    result = []
     backtrack(0, [])
-    return res
+    return result
 # Input: s = "aab"
 # Output: [["a","a","b"],["aa","b"]]
 
@@ -284,6 +289,22 @@ class LetterCombinations(object):
 
         return res
 # can be extended to dict of words
+
+#  Count Minimum Operations to Make Valid Parentheses O(n) time and O(1) space
+def min_operations_to_valid(s):
+    openB = 0
+    closeB = 0
+    
+    for char in s:
+        if char == '(':
+            openB += 1
+        elif char == ')':
+            if openB > 0:
+                openB -= 1
+            else:
+                closeB += 1
+                
+    return openB + closeB
 
 # N-Queens
 # Problem: Place n queens on an n x n chessboard such that no two queens threaten each other. Return all distinct solutions.
@@ -338,27 +359,14 @@ def removeInvalidParentheses(s: str) -> List[str]:
         level = {t[:i] + t[i+1:] for t in level for i in range(len(t)) if t[i] in '()'}
     return ['']
 
-#  Count Minimum Operations to Make Valid Parentheses O(n) time and O(1) space
-def min_operations_to_valid(s):
-    open_needed = 0
-    close_needed = 0
-    
-    for char in s:
-        if char == '(':
-            open_needed += 1
-        elif char == ')':
-            if open_needed > 0:
-                open_needed -= 1
-            else:
-                close_needed += 1
-                
-    return open_needed + close_needed
-
 # Word Break II for(n^3)
-# Problem: Given a string s and a dictionary wordDict, return all possible sentences where s is split into dictionary words.
+# Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+# Note that the same word in the dictionary may be reused multiple times in the segmentation.
 # Approach: Backtracking + Memoization
 # Key Idea:
 # Partition s into valid prefixes (found in wordDict) and recursively process the remaining substring.
+# Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
+# Output: ["cats and dog","cat sand dog"]
 def wordBreak(s: str, wordDict: List[str]) -> List[str]:
     def backtrack(start, memo):
         if start in memo: 
