@@ -86,6 +86,64 @@ class Graph:
 
 
 
+########################################################
+### 1. Clone Graph (Leetcode 133)
+########################################################
+
+# **Problem Statement**:  
+# Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.
+
+# **Example**:
+
+# Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+# Output: [[2,4],[1,3],[2,4],[1,3]]
+# Explanation:
+# 1 -> 2 & 4
+# 2 -> 1 & 3
+# 3 -> 2 & 4
+# 4 -> 1 & 3
+# ```
+
+# **Algorithm**:  
+# 1. Use **DFS** to traverse the original graph.
+# 2. Maintain a hash map to store `original_node -> cloned_node` mappings.
+# 3. For each node, create its clone and recursively clone all neighbors.
+
+# **Solution**:
+
+class Node:
+    def __init__(self, val=0, neighbors=None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+def cloneGraph(node):
+    if not node:
+        return None
+    
+    # Hash map to store original node to its clone
+    visited = {}
+    
+    def dfs(node):
+        # If node already cloned, return its clone
+        if node in visited:
+            return visited[node]
+        
+        # Create clone of current node
+        clone = Node(node.val)
+        visited[node] = clone
+        
+        # Clone all neighbors recursively
+        for neighbor in node.neighbors:
+            clone.neighbors.append(dfs(neighbor))
+        
+        return clone
+    
+    return dfs(node)
+# """
+# Time Complexity: O(V + E) - Visits each node and edge once
+# Space Complexity: O(V) - For the hash map and recursion stack
+# """
+
 
 ########################################################
 # Graph Valid Tree / Detech Cycles Undirected Graphs
@@ -1043,64 +1101,6 @@ class Solution:
                     cntFresh += 1
 
         return self.bfs(grid, q, cntFresh)
-
-########################################################
-### 1. Clone Graph (Leetcode 133)
-########################################################
-
-# **Problem Statement**:  
-# Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.
-
-# **Example**:
-
-# Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
-# Output: [[2,4],[1,3],[2,4],[1,3]]
-# Explanation:
-# 1 -> 2 & 4
-# 2 -> 1 & 3
-# 3 -> 2 & 4
-# 4 -> 1 & 3
-# ```
-
-# **Algorithm**:  
-# 1. Use **DFS** to traverse the original graph.
-# 2. Maintain a hash map to store `original_node -> cloned_node` mappings.
-# 3. For each node, create its clone and recursively clone all neighbors.
-
-# **Solution**:
-
-class Node:
-    def __init__(self, val=0, neighbors=None):
-        self.val = val
-        self.neighbors = neighbors if neighbors is not None else []
-
-def cloneGraph(node):
-    if not node:
-        return None
-    
-    # Hash map to store original node to its clone
-    visited = {}
-    
-    def dfs(node):
-        # If node already cloned, return its clone
-        if node in visited:
-            return visited[node]
-        
-        # Create clone of current node
-        clone = Node(node.val)
-        visited[node] = clone
-        
-        # Clone all neighbors recursively
-        for neighbor in node.neighbors:
-            clone.neighbors.append(dfs(neighbor))
-        
-        return clone
-    
-    return dfs(node)
-# """
-# Time Complexity: O(V + E) - Visits each node and edge once
-# Space Complexity: O(V) - For the hash map and recursion stack
-# """
 
 
 

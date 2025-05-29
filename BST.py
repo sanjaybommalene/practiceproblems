@@ -670,5 +670,5 @@ def diagonalTraversal(root):
         result.append(' '.join(map(str, diagonal_map[key])))
     
     return result
-Time: O(N) – each node is visited once.
-Space: O(N) – space for queue and map.
+# Time: O(N) – each node is visited once.
+# Space: O(N) – space for queue and map.

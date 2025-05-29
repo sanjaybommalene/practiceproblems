@@ -25,6 +25,9 @@ Input: s = "abcda"
 Output: 2
 above string can be inserted with 2 more characters to make it palindrome.
 d and b can be inserted -> "abdcdba"
+Find LCA in N- array tree ->
+Leetcode 179
+
 
 Print FooBar Alternately
 The Dining Philosophers
