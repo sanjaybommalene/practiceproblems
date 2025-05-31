@@ -1014,8 +1014,34 @@ def shortestPathDAG(n, edges, source):
 # Input: n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]
 # Output: [[1,3]]
 # ```
+# **Tarjan's Algorithm for Bridges – Explanation**
+# ------------------------------------------------
+# Tarjan's algorithm is a DFS-based approach to find all bridges (critical connections) in an undirected graph in O(V + E) time.
+# A **bridge** is an edge whose removal increases the number of connected components in the graph.
+#
+# **Key Concepts:**
+# - **Discovery Time (`disc[u]`)**: The time when a node `u` is first visited during DFS.
+# - **Low-Link Value (`low[u]`)**: The earliest discovered node reachable from `u` (including itself and via back-edges).
+#
+# **Algorithm Steps:**
+# 1. For each node, assign a discovery time and initialize its low-link value to the discovery time.
+# 2. For each neighbor `v` of `u`:
+#    - If `v` is not visited, recursively DFS on `v`, and update `low[u] = min(low[u], low[v])`.
+#    - If `v` is already visited and is not the parent, update `low[u] = min(low[u], disc[v])` (back edge).
+# 3. After visiting all neighbors, if `low[v] > disc[u]`, then edge `(u, v)` is a bridge.
+#
+# **Why does this work?**
+# - If `low[v] > disc[u]`, it means that there is no back edge from `v` or its descendants to `u` or its ancestors.
+# - Thus, removing `(u, v)` disconnects the graph, making it a bridge.
+
 
 # **Algorithm** (Tarjan's Bridge Finding):
+#  Suppose there exists a edge from u -> v, now after removal of this edge if v can't be reached by any other edges then u -> v edge is bridge.
+# visited[ ] = to keep track of the visited vertices to implement DFS
+# disc[ ] = to keep track when for the first time that particular vertex is reached
+# low[ ] = to keep track of the lowest possible time by which we can reach that vertex 'other than parent' 
+# so that if edge from parent is removed can the particular node can be reached other than parent.
+
 # 1. Track discovery time and low link values.
 # 2. A bridge is found where `low[v] > disc[u]`.
 # Tarjan’s Algorithm: Assign discovery and low-link times to nodes. An edge (u, v) is a bridge if low[v] > disc[u].
@@ -1032,7 +1058,7 @@ def criticalConnections(n, connections):
     
     # Initialize discovery and low-link arrays
     disc = [-1] * n
-    low = [-1] * n
+    low = [-1] * n # Lowest discovery reachable
     time = [0]
     result = []
     
@@ -1044,16 +1070,18 @@ def criticalConnections(n, connections):
         # Explore neighbors
         for v in adj[u]:
             if v == parent:
-                continue
+                continue # Skip the edge to parent
             if disc[v] == -1:  # Unvisited neighbor
                 dfs(v, u)
                 low[u] = min(low[u], low[v])
+                # Check bridge condition
                 if low[v] > disc[u]:
                     result.append([u, v])
-            else:  # Back edge
+            else:  # Back edge case
                 low[u] = min(low[u], disc[v])
     
     # Run DFS from each unvisited node
+    # dfs(0, -1)
     for i in range(n):
         if disc[i] == -1:
             dfs(i, -1)

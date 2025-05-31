@@ -158,62 +158,164 @@ class Solution:
 # Input: nums = [1,2,3,1,2,3], k = 2
 # Output: false
 
-# Word Pattern
+# Word Pattern O(n), O(n)
 # Given a pattern and a string s, find if s follows the same pattern.
 # Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty word in s. Specifically:
 # Each letter in pattern maps to exactly one unique word in s.
 # Each unique word in s maps to exactly one letter in pattern.
 # No two letters map to the same word, and no two words map to the same letter.
 # A bijection is both onto and one-to-one. 
-class Solution:
-    def wordPattern(self, pattern: str, s: str) -> bool:
+# Example 1:
+# Input: pattern = "abba", s = "dog cat cat dog"
+# Output: true
+# Explanation:
+# The bijection can be established as:
+# 'a' maps to "dog".
+# 'b' maps to "cat".
+# Example 2:
+# Input: pattern = "abba", s = "dog cat cat fish"
+# Output: false
+# Example 3:
+# Input: pattern = "aaaa", s = "dog cat cat dog"
+# Output: false
+def word_pattern(pattern: str, s: str) -> bool:
+    # Split the string into words
+    words = s.split()
+    
+    # If the lengths are not equal, they can't match
+    if len(pattern) != len(words):
+        return False
 
-        s = s.split()
+    # Create two dictionaries to track the mappings
+    char_to_word = {}
+    word_to_char = {}
 
-        return (len(set(pattern)) ==
-                len(set(s)) ==
-                len(set(zip_longest(pattern,s))))
+    for char, word in zip(pattern, words):
+        # Check if character was previously mapped
+        if char in char_to_word:
+            if char_to_word[char] != word:
+                return False  # Mapping mismatch
+        else:
+            char_to_word[char] = word  # New mapping
 
-# Subarray Sum Equals K O(N)
+        # Check if word was previously mapped
+        if word in word_to_char:
+            if word_to_char[word] != char:
+                return False  # Mapping mismatch
+        else:
+            word_to_char[word] = char  # New reverse mapping
+
+    return True
+
+
+# Subarray Sum Equals K O(N), O(N)
+# Given an array of integers nums and an integer k, return the total number of continuous subarrays whose sum equals to k.
 # Iterate through nums:
 # Update prefix_sum += nums[i].
 # If prefix_sum - k exists in sum_map, add sum_map[prefix_sum - k] to count.
 # Increment sum_map[prefix_sum] by 1.
-class Solution:
-    def subarraySum(self, nums: List[int], k: int) -> int:
-        sub_num = {0:1}
-        prefix_sum = count = 0
+def subarray_sum_count(nums, k):
+    count = 0               # To count the number of subarrays summing to k
+    current_sum = 0         # To track the prefix sum while iterating
+    prefix_sums = {0: 1}    # Hash map to store prefix sum frequencies
+                            # Initial entry: sum 0 has occurred once (important base case)
 
-        for n in nums:
-            prefix_sum+=n
+    for num in nums:
+        current_sum += num  # Update current prefix sum
 
-            if prefix_sum - k in sub_num:
-                count+=sub_num[prefix_sum-k]
-            
-            sub_num[prefix_sum] = 1+sub_num.get(prefix_sum, 0)
-        return count
+        # Check if there's a prefix sum such that current_sum - k == that prefix
+        # If yes, it means the subarray between that prefix and current index sums to k
+        if (current_sum - k) in prefix_sums:
+            count += prefix_sums[current_sum - k]  # Add the number of times that prefix has occurred
+
+        # Update the count of the current prefix sum in the map
+        prefix_sums[current_sum] = prefix_sums.get(current_sum, 0) + 1
+
+    return count
+# nums = [1, 2, 3], k = 3
+
+# current_sum = 0
+# prefix_sums = {0:1}
+
+# i=0: num=1 → current_sum = 1 → 1-3 = -2 → not in map  
+#     → update map: {0:1, 1:1}
+
+# i=1: num=2 → current_sum = 3 → 3-3 = 0 → map[0] = 1  
+#     → count += 1 → update map: {0:1, 1:1, 3:1}
+
+# i=2: num=3 → current_sum = 6 → 6-3 = 3 → map[3] = 1  
+#     → count += 1 → update map: {0:1, 1:1, 3:1, 6:1}
+
+# Return count = 2
+
+
 # Input: nums = [1,1,1], k = 2
 # Output: 2
 # Input: nums = [1,2,3], k = 3
 # Output: 2
 
-# Subarray Sum Equals K O(N^2),O(N) Return SubArray
-def subarraySum(nums, k):
+# Subarray Sum Equals K O(N),O(N) Return SubArray
+from collections import defaultdict
+
+def subarray_sum_list_optimized(nums, k):
+    result = []  # Final list of subarrays
     prefix_sum = 0
-    sum_map = {}
-    sum_map[0] = [-1]  # Base case for subarrays starting at index 0
-    result = []
+    prefix_map = defaultdict(list)  # Map: prefix_sum → list of indices where it occurs
+
+    # Add initial prefix_sum = 0 at index -1 (to handle subarrays starting at index 0)
+    prefix_map[0].append(-1)
 
     for i, num in enumerate(nums):
         prefix_sum += num
-        # Check if (prefix_sum - k) exists in the map
-        if prefix_sum - k in sum_map:
-            for start in sum_map[prefix_sum - k]:
-                result.append(nums[start + 1 : i + 1])
-        # Update the map with the current prefix_sum
-        if prefix_sum in sum_map:
-            sum_map[prefix_sum].append(i)
-        else:
-            sum_map[prefix_sum] = [i]
-    
+
+        # If current prefix_sum - k exists, collect all starting indices
+        if (prefix_sum - k) in prefix_map:
+            for start_index in prefix_map[prefix_sum - k]:
+                # Add subarray from start_index+1 to i
+                result.append(nums[start_index + 1: i + 1])
+
+        # Record current index for current prefix_sum
+        prefix_map[prefix_sum].append(i)
+
     return result
+# nums = [1, 2, 1, 3], k = 3
+
+# prefix_sums:
+# i=0 → sum=1
+# i=1 → sum=3 → sum-k = 0 → map[0] = [-1] → [1,2]
+# i=2 → sum=4 → sum-k = 1 → map[1] = [0] → [2,1]
+# i=3 → sum=7 → sum-k = 4 → map[4] = [2] → [3]
+
+def subarray_sum_list(nums, k):
+    result = []  # List to store all valid subarrays
+
+    # Try every starting index
+    for start in range(len(nums)):
+        total = 0  # Initialize sum for the subarray starting at `start`
+
+        # Try every ending index from `start` to the end of the array
+        for end in range(start, len(nums)):
+            total += nums[end]  # Add current element to the running sum
+
+            if total == k:
+                # If subarray sum equals k, store the subarray slice
+                result.append(nums[start:end + 1])
+
+    return result
+# nums = [1, 2, 3]
+# k = 3
+
+# start=0:
+#   end=0 → total = 1
+#   end=1 → total = 3 → [1, 2]
+#   end=2 → total = 6
+
+# start=1:
+#   end=1 → total = 2
+#   end=2 → total = 5
+
+# start=2:
+#   end=2 → total = 3 → [3]
+
+# Output: [[1, 2], [3]]
+

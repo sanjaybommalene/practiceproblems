@@ -306,6 +306,112 @@ def min_operations_to_valid(s):
                 
     return openB + closeB
 
+# Remove Invalid Parentheses 
+# Time Complexity: O(2^n) in worst case where n is string length
+# In practice, it's much better because we stop at the first valid level
+# Space Complexity: O(2^n) for the queue and visited set
+# Again, optimized by stopping early when solutions are found
+# Key Idea:
+# Use BFS to explore all possible removals level by level (minimum removals first).
+# For each candidate, check validity.
+# Problem: Remove the minimum number of invalid parentheses to make the input string valid. Return all possible results.
+# First, we define a helper function is_valid to check if a string has balanced parentheses.
+# We use BFS approach where each level represents strings with one more character removed.
+# Start with the original string in the first level.
+# For each string in current level, generate new strings by removing each parenthesis.
+# If any valid string is found in current level, return all valid strings.
+# Otherwise, proceed to next level with one more character removed.
+def removeInvalidParentheses(s):
+    def is_valid(t):
+        balance = 0
+        for c in t:
+            if c == '(': balance += 1
+            elif c == ')': balance -= 1
+            if balance < 0: return False
+        return balance == 0
+
+    result = []
+    visited = set()
+    queue = deque()
+    queue.append(s)
+    visited.add(s)
+    found = False  # Flag to stop at minimum level
+
+    while queue:
+        current = queue.popleft()
+
+        if is_valid(current):
+            result.append(current)
+            found = True  # Mark that we've found valid strings at this level
+        
+        # If we found valid strings at this level, don't process next level
+        if found:
+            return current
+        
+        # Generate all possible strings by removing one parenthesis
+        for i in range(len(current)):
+            if current[i] not in '()':  # Skip non-parenthesis characters
+                continue
+            
+            # Create new string by removing the i-th character
+            new_str = current[:i] + current[i+1:]
+            if new_str not in visited:
+                visited.add(new_str)
+                queue.append(new_str)
+    
+    return result if result else [""]  # Handle empty string case
+
+# Word Break II for(n^3)
+# Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
+# Note that the same word in the dictionary may be reused multiple times in the segmentation.
+# Approach: Backtracking + Memoization
+# Key Idea:
+# Partition s into valid prefixes (found in wordDict) and recursively process the remaining substring.
+# Use DFS + memoization to explore every possible partition.
+# At each index, try all prefixes s[start:end].
+# If the prefix is in the dictionary, recurse on the remaining substring.
+# Use a memoization map to avoid recomputing results for the same substring.
+# Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
+# Output: ["cats and dog","cat sand dog"]
+from functools import lru_cache
+
+def wordBreak(s,wordDict):
+    word_set = set(wordDict)  # Convert to set for O(1) lookups
+    max_len = max(len(word) for word in wordDict) if wordDict else 0
+    
+    @lru_cache(maxsize=None)
+    def backtrack(start):
+        if start == len(s):
+            return [""]  # Base case: empty string
+        
+        sentences = []
+        # Try all possible end positions (up to max word length for optimization) for end in range(start + 1, len(s) + 1):
+        for end in range(start + 1, min(start + max_len + 1, len(s) + 1)):
+            word = s[start:end]
+            if word in word_set:
+                # Recursively process the remaining string
+                for subsentence in backtrack(end):
+                    if subsentence:
+                        sentences.append(word + " " + subsentence)
+                    else:
+                        sentences.append(word)
+        return sentences
+    
+    return backtrack(0)
+
+# Preprocessing:
+# Convert wordDict to a set for O(1) lookups
+# Calculate max_len to limit our prefix checks (optimization)
+# Backtracking with Memoization:
+# backtrack(start) returns all valid sentences from s[start:]
+# Base case: when start reaches end of string, return [""]
+# For each possible prefix s[start:end]:
+# If prefix is in dictionary:
+# Recursively get sentences from s[end:]
+# Combine current word with each subsentence
+# @lru_cache memoizes results to avoid recomputation
+
+
 # N-Queens
 # Problem: Place n queens on an n x n chessboard such that no two queens threaten each other. Return all distinct solutions.
 # Approach: Backtracking
@@ -331,58 +437,32 @@ def solveNQueens(n: int) -> List[List[str]]:
 # Time Complexity: O(n!)
 # Space Complexity: O(n^2)
 
-# Remove Invalid Parentheses O(2^n),O(n)
-# Key Idea:
-# Use BFS to explore all possible removals level by level (minimum removals first).
-# For each candidate, check validity.
-# Problem: Remove the minimum number of invalid parentheses to make the input string valid. Return all possible results.
-# First, we define a helper function is_valid to check if a string has balanced parentheses.
-# We use BFS approach where each level represents strings with one more character removed.
-# Start with the original string in the first level.
-# For each string in current level, generate new strings by removing each parenthesis.
-# If any valid string is found in current level, return all valid strings.
-# Otherwise, proceed to next level with one more character removed.
-def removeInvalidParentheses(s: str) -> List[str]:
-    def is_valid(t):
-        balance = 0
-        for c in t:
-            if c == '(': balance += 1
-            elif c == ')': balance -= 1
-            if balance < 0: return False
-        return balance == 0
-
-    level = {s}
-    while level:
-        res = [t for t in level if is_valid(t)]
-        if res: 
-            return res
-        level = {t[:i] + t[i+1:] for t in level for i in range(len(t)) if t[i] in '()'}
-    return ['']
-
-# Word Break II for(n^3)
-# Given a string s and a dictionary of strings wordDict, add spaces in s to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in any order.
-# Note that the same word in the dictionary may be reused multiple times in the segmentation.
-# Approach: Backtracking + Memoization
-# Key Idea:
-# Partition s into valid prefixes (found in wordDict) and recursively process the remaining substring.
-# Input: s = "catsanddog", wordDict = ["cat","cats","and","sand","dog"]
-# Output: ["cats and dog","cat sand dog"]
-def wordBreak(s: str, wordDict: List[str]) -> List[str]:
-    def backtrack(start, memo):
-        if start in memo: 
-            return memo[start]
+# Restore IP Addresses:
+class solution:
+    def restoreIpAddresses(s: str) -> List[str]:
+        def backtrack(start, path):
+            if len(path) == 4 and start == len(s):
+                res.append(".".join(path))
+                return
+            if len(path) == 4 or start == len(s):
+                return
+            for i in range(1, 4):
+                if start + i > len(s):
+                    break
+                segment = s[start:start+i]
+                if (segment[0] == '0' and len(segment) > 1) or int(segment) > 255:
+                    continue
+                backtrack(start + i, path + [segment])
+        
         res = []
-        if start == len(s): 
-            res.append("")
-        for end in range(start + 1, len(s) + 1):
-            word = s[start:end]
-            if word in wordDict:
-                for sentence in backtrack(end, memo):
-                    res.append(word + (" " + sentence if sentence else ""))
-        memo[start] = res
+        backtrack(0, [])
         return res
-
-    return backtrack(0, {})
+# Time: O(3^4)=O(81) (since at each of the 4 segments, there are up to 3 choices).
+# Space: O(1) (ignoring the space for the result).
+# Input: s = "25525511135"
+# Output: ["255.255.11.135","255.255.111.35"]
+# Input: s = "0000"
+# Output: ["0.0.0.0"]
 
 # Zigzag conversion
 # The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of rows like this: (you may want to display this pattern in a fixed font for better legibility)
@@ -411,29 +491,4 @@ class Solution:
 
         return ''.join(rows)   
 
-# Restore IP Addresses:
-class solution:
-    def restoreIpAddresses(s: str) -> List[str]:
-        def backtrack(start, path):
-            if len(path) == 4 and start == len(s):
-                res.append(".".join(path))
-                return
-            if len(path) == 4 or start == len(s):
-                return
-            for i in range(1, 4):
-                if start + i > len(s):
-                    break
-                segment = s[start:start+i]
-                if (segment[0] == '0' and len(segment) > 1) or int(segment) > 255:
-                    continue
-                backtrack(start + i, path + [segment])
-        
-        res = []
-        backtrack(0, [])
-        return res
-# Time: O(3^4)=O(81) (since at each of the 4 segments, there are up to 3 choices).
-# Space: O(1) (ignoring the space for the result).
-# Input: s = "25525511135"
-# Output: ["255.255.11.135","255.255.111.35"]
-# Input: s = "0000"
-# Output: ["0.0.0.0"]
+

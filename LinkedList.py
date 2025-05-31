@@ -252,9 +252,9 @@ class Solution:
 
 # Remove nth-node from linked list O(N),O(1)
 def removeNthFromEnd(head, n):
-    dummy = ListNode(0)
-    dummy.next = head
-    fast = slow = dummy
+    res = ListNode(0)
+    res.next = head
+    fast = slow = res
     
     # Move fast n steps ahead
     for _ in range(n):
@@ -268,7 +268,7 @@ def removeNthFromEnd(head, n):
     # Remove the nth node from the end
     slow.next = slow.next.next
     
-    return dummy.next
+    return res.next
     # [1,2,3,4,5]
     #    d   h
     # r

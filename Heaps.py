@@ -169,73 +169,82 @@ def minMeetingRooms(intervals):
 
 import heapq
 
-def min_delay_meeting_rooms(n, meetings):
-    # Sort meetings by their start time
+def min_total_delay(n, meetings):
+    # Sort meetings by their start times
     meetings.sort()
-    
-    # Initialize available rooms (0 to n-1)
-    available_rooms = list(range(n))
-    heapq.heapify(available_rooms)
-    
-    # Min-heap to track busy rooms: (end_time, room)
-    busy_rooms = []
-    
+
+    # Heap to track current room usage: (end_time, room_index)
+    room_heap = []
+
+    # Initially, all rooms are free
+    for room in range(n):
+        heapq.heappush(room_heap, (0, room))  # (available_time, room_index)
+
     total_delay = 0
-    
+
     for start, end in meetings:
-        # Check if any rooms have become available by the current start time
-        while busy_rooms and busy_rooms[0][0] <= start:
-            end_time, room = heapq.heappop(busy_rooms)
-            heapq.heappush(available_rooms, room)
-        
-        if available_rooms:
-            # Assign the smallest available room
-            room = heapq.heappop(available_rooms)
-            heapq.heappush(busy_rooms, (end, room))
+        duration = end - start
+
+        # Get the earliest available room
+        avail_time, room = heapq.heappop(room_heap)
+
+        if avail_time <= start:
+            # Room is free, no delay
+            new_end = start + duration
+            delay = 0
         else:
-            # No available rooms, delay the meeting
-            earliest_end, room = heapq.heappop(busy_rooms)
-            delay = earliest_end - start
+            # Room isn't free, delay the meeting
+            delay = avail_time - start
+            new_end = avail_time + duration
             total_delay += delay
-            new_end = earliest_end + (end - start)
-            heapq.heappush(busy_rooms, (new_end, room))
-    
+
+        # Assign meeting and update room availability
+        heapq.heappush(room_heap, (new_end, room))
+
     return total_delay
+
 
 import heapq
 
 def mostBooked(n, meetings):
-    # Sort meetings by start time
+    # Sort the meetings by their start time
     meetings.sort()
-    
-    # Initialize available rooms (0 to n-1)
-    available = list(range(n))
-    heapq.heapify(available)
-    
-    # Busy heap: (end_time, room)
-    busy = []
-    
-    # Track meeting counts per room
-    room_counts = [0] * n
-    
+
+    # Available rooms stored by index (always use smallest index first)
+    available_rooms = list(range(n))
+    heapq.heapify(available_rooms)
+
+    # In-use rooms stored as (end_time, room_index)
+    used_rooms = []
+
+    # Track how many meetings each room hosted
+    meeting_count = [0] * n
+
     for start, end in meetings:
-        # Free up rooms whose meetings have ended
-        while busy and busy[0][0] <= start:
-            end_time, room = heapq.heappop(busy)
-            heapq.heappush(available, room)
-        
-        if available:
-            # Assign the smallest available room
-            room = heapq.heappop(available)
-            heapq.heappush(busy, (end, room))
+        # Free up rooms whose meetings ended before this one starts
+        while used_rooms and used_rooms[0][0] <= start:
+            end_time, room_index = heapq.heappop(used_rooms)
+            heapq.heappush(available_rooms, room_index)
+
+        duration = end - start
+
+        if available_rooms:
+            # Use the available room with the smallest index
+            room = heapq.heappop(available_rooms)
+            heapq.heappush(used_rooms, (end, room))
         else:
-            # No available rooms, use the one ending earliest
-            earliest_end, room = heapq.heappop(busy)
-            new_end = earliest_end + (end - start)
-            heapq.heappush(busy, (new_end, room))
-        
-        room_counts[room] += 1
+            # All rooms are busy — delay the meeting to the earliest room available
+            earliest_end, room = heapq.heappop(used_rooms)
+            new_end = earliest_end + duration
+            heapq.heappush(used_rooms, (new_end, room))
+
+        # Increment count for the room used
+        meeting_count[room] += 1
     
     # Find the room with maximum meetings
-    max_count = max(room_counts)
-    return room_counts.index(max_count)
+    max_count = max(meeting_count)
+    return meeting_count.index(max_count)
+# Time: O(m log n) where m = number of meetings, n = number of rooms
+# Sorting: O(m log m)
+# Each meeting may insert/remove from heap: O(log n)
+# Space: O(n) for heaps and room counters

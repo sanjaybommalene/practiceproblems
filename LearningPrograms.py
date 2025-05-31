@@ -26,7 +26,7 @@ class Arrays:
     if __name__ == "__main__":
         main()
 
-# Problem-1: Sorted Array 
+# Problem-1: Merge Sorted Array 
 class MySolution:
     def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
         buf = [0] * (m + n)
@@ -339,6 +339,196 @@ def main():
 if __name__ == "__main__":
     main()
 
+# Stripe
+class CurrencyConverter:
+    def __init__(self, rates_str):
+        self.rates = self.parse_rates(rates_str)
+    
+    def parse_rates(self, rates_str):
+        rates = {}
+        for rate in rates_str.split(','):
+            src, tgt, method, amount = rate.split(':')
+            key = (src, tgt)
+            rates[key] = (method, float(amount))
+        return rates
+    
+    def direct_conversion(self, amount, src_currency, tgt_currency):
+        key = (src_currency, tgt_currency)
+        if key in self.rates:
+            method, rate = self.rates[key]
+            return amount * rate, [method]
+        return None, []
+    
+    def one_hop_conversion(self, amount, src_currency, tgt_currency):
+        # Try direct conversion first
+        direct_result, direct_methods = self.direct_conversion(amount, src_currency, tgt_currency)
+        
+        # Try one-hop conversions
+        one_hop_results = []
+        if direct_result is not None:
+            one_hop_results.append((direct_result, direct_methods))
+        
+        # Find intermediate currencies
+        for (src, tgt), (method1, rate1) in self.rates.items():
+            if src == src_currency:
+                intermediate_amount = amount * rate1
+                # Try direct conversion from intermediate to target
+                result, methods = self.direct_conversion(intermediate_amount, tgt, tgt_currency)
+                if result is not None:
+                    one_hop_results.append((result, [method1, methods[0]]))
+        
+        return one_hop_results
+    
+    def min_cost_conversion(self, amount, src_currency, tgt_currency):
+        paths = self.one_hop_conversion(amount, src_currency, tgt_currency)
+        if not paths:
+            return None, []
+        
+        min_cost = min(path[0] for path in paths)
+        min_paths = [path for path in paths if path[0] == min_cost]
+        
+        # Return the first minimum cost path if there are multiple with same cost
+        return min_paths[0] if min_paths else (None, [])
+
+# Example usage
+# rates_str = "USD:CAD:DHL:5,USD:GBP:FEDX:10,CAD:GBP:UPS:0.5,GBP:EUR:DHL:1"
+# converter = CurrencyConverter(rates_str)
+
+# amount = 100
+# print("Direct USD->CAD:", converter.direct_conversion(amount, 'USD', 'CAD'))
+# print("All one-hop USD->GBP:", converter.one_hop_conversion(amount, 'USD', 'GBP'))
+# print("Minimum cost USD->GBP:", converter.min_cost_conversion(amount, 'USD', 'GBP'))
+# print("Minimum cost USD->EUR:", converter.min_cost_conversion(amount, 'USD', 'EUR'))
+# Direct USD->CAD: (500.0, ['DHL'])
+# All one-hop USD->GBP: [(1000.0, ['FEDX']), (250.0, ['DHL', 'UPS'])]
+# Minimum cost USD->GBP: (250.0, ['DHL', 'UPS'])
+# Minimum cost USD->EUR: (1000.0, ['FEDX', 'DHL'])
+
+
+# Juan Hernandez is a Shopify merchant that owns a Pepper sauce shop
+# with five locations: Toronto, Vancouver, Montreal, Calgary and Halifax.
+# He also sells online and ships his sauces across the country from one
+# of his brick-and-mortar locations.
+
+# The pepper sauces he sells are:
+
+# Jalapeño (J)
+# Habanero (H)
+# Serrano (S)
+# The inventory count for each location looks like this:
+# Every time he gets an online order, he needs to figure out
+# which locations can fulfill that order. Write a function that
+# takes an order as input and outputs a list of locations which
+# have all the items in stock.
+
+# Example
+# Input : J:3. H:2 s:4
+# Output: Van, Mon, Hali
+
+# Input: H:7 S:1
+# Output: Cal
+def get_fulfillment_locations(order):
+    # Standardize inventory data
+    inventory = {
+        "Toronto":    {"J": 5,  "H": 0,  "S": 0},
+        "Vancouver":  {"J": 10, "H": 2,  "S": 6},
+        "Montreal":   {"J": 3,  "H": 5,  "S": 5},
+        "Calgary":    {"J": 1,  "H": 18, "S": 2},
+        "Halifax":    {"J": 28, "H": 2,  "S": 12},
+    }
+
+    # Shorten city names for output
+    city_short_names = {
+        "Toronto": "Tor",
+        "Vancouver": "Van",
+        "Montreal": "Mon",
+        "Calgary": "Cal",
+        "Halifax": "Hali"
+    }
+
+    # Parse the order string
+    order_items = {}
+    for item in order.replace(",", "").split():
+        sauce, qty = item.split(":")
+        order_items[sauce.upper()] = int(qty)
+
+    # Check which cities can fulfill the order
+    result = []
+    for city, stock in inventory.items():
+        can_fulfill = all(stock.get(sauce, 0) >= qty for sauce, qty in order_items.items())
+        if can_fulfill:
+            result.append(city_short_names[city])
+
+    return result
+
+# print(get_fulfillment_locations("J:3 H:2 S:4"))  # Output: ['Van', 'Mon', 'Hali']
+# print(get_fulfillment_locations("H:7 S:1"))      # Output: ['Cal']
+
+# Write a function that takes a list of integers and outputs a list of pairs representing the consecutive ranges contained in the inputlist. Note: the input list is sorted.
+
+# arr1 = [1,3,4]
+# Output = [(1,1),(3,4)]
+
+# arr2 = [1,2,3,4,5]
+# Output = [(1,5)]
+
+# arr3 = [1,1,1,3,4,5,6,7,9]
+# Output = [(1,1), (3,7), (9,9)]
+def find_consecutive_ranges(nums):
+    if not nums:
+        return []
+    
+    ranges = []
+    start = nums[0]
+    prev = nums[0]
+    
+    for num in nums[1:]:
+        if num == prev + 1:
+            prev = num
+        else:
+            ranges.append((start, prev))
+            start = num
+            prev = num
+    
+    # Add the last range
+    ranges.append((start, prev))
+    
+    return ranges
+
+# You are given:
+# Prices of items.
+# Discount strategies for each item (if any).
+# A list of items in the shopping cart.
+# You need to return the total price after applying the respective discount strategies.
+# "BOGOF" → Buy One Get One Free
+# "BTGO" → Buy Two Get One Free
+# None → No discount
+def calculate_total(cart, prices, discounts):
+    total = 0
+
+    # Count items in the cart
+    item_counts = {}
+    for item in cart:
+        item_counts[item] = item_counts.get(item, 0) + 1
+
+    # Calculate total with discounts
+    for item, count in item_counts.items():
+        price = prices.get(item, 0)
+        discount = discounts.get(item)
+
+        if discount == "BOGOF":
+            # Buy One Get One Free
+            total += price * ((count // 2) + (count % 2))
+
+        elif discount == "BTGO":
+            # Buy Two Get One Free
+            total += price * (count - count // 3)
+
+        else:
+            # No discount
+            total += price * count
+
+    return total
 
 # Imagine you’re working on payments team. Customer subscribes to Products and is interested in exploring how much it’ll cost them to keep using the product for the rest of the year.
 # Your task is to develop a Cost Explorer that calculates the total cost a customer has to pay in a unit year. This means that at any day of the year they should be able to get a 

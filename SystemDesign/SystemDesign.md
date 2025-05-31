@@ -1,3 +1,4 @@
+## Problems and Solutions List
 ### Content Delivery and Streaming
     1. Design Spotify/Music Streaming.
         a. https://www.geeksforgeeks.org/design-spotify-premium-system-design
@@ -490,18 +491,83 @@
 
 
 
-###
-###
-###
-###
+### Design Chatting System
+    1. Whatsapp
+        a. https://www.geeksforgeeks.org/designing-whatsapp-messenger-system-design
+        b. https://github.com/karanpratapsingh/system-design?tab=readme-ov-file#whatsapp
+
+    2. Instagram
+        a. https://www.geeksforgeeks.org/design-instagram-a-system-design-interview-question
+        b. https://medium.com/@lazygeek78/system-design-series-cfa60db16c27
+
+    3. Facebook
+        a. https://www.geeksforgeeks.org/design-facebook-system-design
+    
+    4. Twitter
+        a. https://www.geeksforgeeks.org/design-twitter-a-system-design-interview-question
+        b. https://github.com/karanpratapsingh/system-design?tab=readme-ov-file#twitter
 
 
+### Design Zoom
 
+### Design Leaderboard
 
+### Miscellenous
+
+###
 
 Ref:
     https://github.com/gitgik/distributed-system-design/tree/master
 
+https://github.com/ashishps1/awesome-system-design-resources
+## 🔹 Real-World App-Based System Design Problems / Pending
+
+1. Design LRU Cache  
+2. Design LFU Cache  
+3. Design an ATM System: Support balance checks, withdrawals, and deposits with security and consistency.  
+4. Design a Snake and Ladder Game: Build a multiplayer game with low-latency updates and fair gameplay.  
+5. Design a URL Shortener (like TinyURL) Use Alex Xu *
+6. Design a Distributed Cache (like Redis): Support low-latency data access with high availability and scalability.  
+7. Design a Message Queue (like Kafka): Handle high-throughput message processing with fault tolerance and scalability.  
+8. Design a Distributed Key-Value Store (like DynamoDB): Support high availability, consistency, and partition tolerance.  
+9. Design a Web Crawler Use Alex Xu 
+10. Design a Search Engine (like Google): Handle query processing, indexing, and ranking for billions of web pages.  
+11. Design a Recommendation System: Create a system for personalized recommendations (e.g., Netflix, Amazon).  
+12. Design Typeahead/Autocomplete: Support real-time search suggestions with personalization and low latency.  
+13. Design a News Feed System: Generate personalized feeds with ranking and real-time updates (e.g., Facebook, LinkedIn).  *
+14. Design Ad Aggregator  
+15. Design a Parking Lot System: Manage parking spot allocation, payments, and real-time availability.  
+16. Design a Content Delivery Network (CDN): Optimize content delivery with edge servers, caching, and low-latency distribution.  
+17. Design a Live Streaming Service (like Twitch): Support real-time video streaming, chat, and low-latency interactions.  
+18. Design Swiggy / Zomato / DoorDash  *
+19. Design Paytm / Google Pay / PhonePe  *
+20. Design a Leaderboard System  
+21. Design Google Maps  *
+22. Design Uber/Ola  *
+23. Design BookMyShow / Ticketmaster  *
+24. Design Airbnb / OYO  *
+25. Design Amazon Order Management System / Flipkart / Paytm Mall  *
+26. Design a Warehouse Management System  *
+27. Design a WhatsApp-like Chat App  
+28. Design Email Scheduling System  
+29. Design Push Notification Service  
+30. Design Real-Time Dashboard (like Grafana/Prometheus)  
+31. Design Google Docs (Real-Time Editing)  
+32. Design Job Recommendation Engine (like LinkedIn)  
+33. Design a Rate Limiter (Token Bucket / Sliding Window)  *
+34. Design CAPTCHA Verification System  
+35. Design a Digital Locker (Govt. or Edu App)
+
+### Monitoring and Analytics
+36. Design a Metrics Monitoring System (like Prometheus): Collect, store, and visualize system metrics in real time.
+37. Design a Logging System: Handle high-volume log collection, storage, and querying for debugging and analytics.
+38. Design a Request Monitoring Service: Track API request counts per time window with scalability and low latency.[](https://www.geeksforgeeks.org/top-10-system-design-interview-questions-and-answers/)
+39. Design an Analytics System (like Google Analytics): Process and visualize user behavior data for millions of events.
+40. Design a Fraud Detection System: Detect and prevent fraudulent transactions in real time for payment systems.
+
+
+## LLD Programming
+https://github.com/ashishps1/awesome-low-level-design
 
 ## Curated List
 ### Social Media and Messaging Platforms
@@ -515,8 +581,7 @@ Ref:
 6. *** Design YouTube: Create a video streaming service with upload, transcoding, and playback for millions of concurrent users.[](https://dev.to/fahimulhaq/cracking-amazon-system-design-interview-top-questions-and-answer-45i1)
 7. *** Design Netflix: Build a streaming platform with personalized recommendations, low-latency playback, and global content delivery.
 8. *** Design Spotify: Design a music streaming service with playlists, offline mode, and low-latency audio streaming.
-9. Design a Content Delivery Network (CDN): Optimize content delivery with edge servers, caching, and low-latency distribution.[](https://www.educative.io/blog/system-design-interview-questions)
-10. Design a Live Streaming Service (like Twitch): Support real-time video streaming, chat, and low-latency interactions.
+
 
 ### E-Commerce and Payment Systems
 11. *** Design Amazon: Build an e-commerce platform with product catalog, cart, checkout, and order tracking for high scalability.
@@ -553,12 +618,6 @@ Ref:
 34. Design a Message Queue (like Kafka): Handle high-throughput message processing with fault tolerance and scalability.
 35. Design a Distributed Key-Value Store (like DynamoDB): Support high availability, consistency, and partition tolerance.[](https://www.interviewbit.com/system-design-interview-questions/)
 
-### Monitoring and Analytics
-36. Design a Metrics Monitoring System (like Prometheus): Collect, store, and visualize system metrics in real time.
-37. Design a Logging System: Handle high-volume log collection, storage, and querying for debugging and analytics.
-38. Design a Request Monitoring Service: Track API request counts per time window with scalability and low latency.[](https://www.geeksforgeeks.org/top-10-system-design-interview-questions-and-answers/)
-39. Design an Analytics System (like Google Analytics): Process and visualize user behavior data for millions of events.
-40. Design a Fraud Detection System: Detect and prevent fraudulent transactions in real time for payment systems.
 
 ### Miscellaneous Systems
 41. *** Design a Movie Ticket Booking System: Handle seat selection, payments, and real-time availability for high concurrency.[](https://in.indeed.com/career-advice/interviewing/low-level-design-interview-questions)
@@ -592,63 +651,3 @@ If you’d like detailed solutions or a breakdown of how to approach any specifi
 
 ### Additional
 
-🔹 Real-World App-Based System Design Problems
-
-🍔 Food Delivery & E-Commerce *** 
-Design Swiggy / Zomato / DoorDash
-Focus: Order matching, driver location tracking, restaurant discovery
-Design BigBasket / Grofers
-Focus: Inventory systems, warehouse logistics, user personalization
-Design Flipkart / Paytm Mall
-Focus: Cart system, product search, checkout flow
-💸 Fintech & Wallets *** 
-Design Paytm / Google Pay / PhonePe
-Focus: UPI integration, wallet system, transaction ledger, fraud detection
-Design a Payment Gateway
-Focus: Idempotency, transaction rollback, settlement batching
-🏆 Gaming & Social
-Design a Leaderboard System
-Focus: Sorted high-score maintenance, ranking by region/time
-Design a Multiplayer Game Server
-Focus: Real-time sync, state consistency, cheat detection
-📍 Location & Mobility *** 
-Design Ola / Uber
-Focus: Real-time geolocation, surge pricing, ETA prediction
-Design Google Maps
-Focus: Route planning, traffic overlays, tile serving
-Design Yulu / Bounce (micro-mobility)
-Focus: Vehicle availability, battery management, geo-fencing
-🛎️ Booking Systems *** 
-Design BookMyShow / Ticketmaster
-Focus: Seat selection, concurrent booking, caching
-Design Airbnb / OYO
-Focus: Availability engine, reviews, calendar sync
-🛒 Commerce & Logistics *** 
-Design Amazon Order Management System
-Focus: Inventory, tracking, returns
-Design a Warehouse Management System
-Focus: Picking routes, SKU management
-🔹 Enterprise & Utility Systems
-
-💬 Messaging & Notifications *** 
-Design a WhatsApp-like Chat App
-Design Email Scheduling System
-Design Push Notification Service
-📈 Analytics & Metrics
-Design Google Analytics
-Design Real-Time Dashboard (like Grafana/Prometheus)
-📅 Scheduling & Collaboration
-Design Google Calendar
-Design Google Docs (Real-Time Editing)
-🧠 Search & Discovery
-Design Quora
-Design Stack Overflow
-Design Job Recommendation Engine (like LinkedIn)
-🔸 Bonus: Interview-Style Quirky Systems
-
-Design a Rate Limiter (Token Bucket / Sliding Window)
-Design CAPTCHA Verification System
-Design a Digital Locker (Govt. or Edu App)
-
-## LLD Programming
-https://github.com/ashishps1/awesome-low-level-design

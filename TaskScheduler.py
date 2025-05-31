@@ -185,6 +185,114 @@ def maxJobs(jobs, k):
 # k = 2
 # print(maxJobs(jobs, k))  # Output: 3
 
+
+
+### ✅ **Problem 1:**
+
+# **Given jobs with start and end times and `k` CPUs, find the minimum time required to complete all tasks.**
+
+#### 🔹 Understanding:
+
+# Each job has a fixed time window it must be executed in: `[start, end)`.
+# Each CPU can only run **one job at a time**.
+# We need to **schedule all jobs using at most `k` CPUs** and determine the **minimum total time** to complete all jobs.
+
+# This is essentially a **scheduling problem** similar to the **interval partitioning problem**, and we want to:
+
+# * Minimize total time (makespan) across all CPUs while executing jobs in their time windows.
+# * If jobs have hard time limits (must finish in their intervals), we can assume we just need to **schedule them without overlapping on the same CPU**, and total time will be determined by how tasks are distributed across CPUs.
+
+
+#### ✅ Greedy Algorithm:
+
+import heapq
+
+def min_time_with_k_cpus(jobs, k):
+    """
+    jobs: List of [start, end] intervals
+    k: number of CPUs
+    """
+    # Sort jobs by start time
+    jobs.sort()
+
+    # Min-heap for each CPU's next available time
+    cpu_heap = []
+
+    for job in jobs:
+        start, end = job
+
+        if cpu_heap and cpu_heap[0] <= start:
+            # CPU is free before job starts
+            heapq.heappop(cpu_heap)  # Reuse CPU
+        elif len(cpu_heap) >= k:
+            # All CPUs are busy, must wait — Not feasible to schedule
+            return -1  # Cannot schedule with k CPUs
+
+        # Push this job's end time (i.e., CPU becomes free at 'end')
+        heapq.heappush(cpu_heap, end)
+
+    return max(cpu_heap) if cpu_heap else 0  # Total time is last CPU’s end time
+
+
+### ✅ **Problem 2:**
+
+# **Given jobs with only start times, and each job takes 6 seconds. With `k` CPUs, find the minimum total time to complete all tasks.**
+
+# #### 🔹 Understanding:
+
+# * Each job starts at a specific time.
+# * But can also be **queued** and processed **any time after its start**.
+# * Each job takes exactly `6 seconds` to complete.
+# * We can assign them to any CPU, as long as CPUs are free.
+
+# #### ✅ Goal:
+
+# **Find the minimum total time to complete all jobs using `k` CPUs.**
+
+
+#### ✅ Solution: Simulate a CPU queue using heap
+
+import heapq
+
+def min_time_fixed_duration(jobs, k):
+    """
+    jobs: List of start times
+    Each job takes 6 seconds.
+    k: number of CPUs
+    """
+    jobs.sort()
+    cpu_heap = []  # (when CPU becomes free)
+
+    for start in jobs:
+        # Free up CPUs that are done before this start
+        while cpu_heap and cpu_heap[0] <= start:
+            heapq.heappop(cpu_heap)
+
+        if len(cpu_heap) < k:
+            # Assign job immediately
+            heapq.heappush(cpu_heap, start + 6)
+        else:
+            # Wait for earliest CPU to be free
+            earliest_free = heapq.heappop(cpu_heap)
+            heapq.heappush(cpu_heap, earliest_free + 6)
+
+    return max(cpu_heap) if cpu_heap else 0
+
+### ✅ Example:
+
+
+# Problem 1 Example
+# jobs = [(1, 4), (2, 5), (3, 6), (4, 7)]
+# k = 2
+# print(min_time_with_k_cpus(jobs, k))  # Output: 6 or 7 depending on job assignments
+
+# # Problem 2 Example
+# starts = [0, 1, 2, 3, 4, 5, 6]
+# k = 2
+# print(min_time_fixed_duration(starts, k))  # Output: time when last task ends
+
+
+
 # - **Minimum Number of CPUs Required**
 #   - **Description**: Given jobs with start and end times, find the minimum number of CPUs needed to schedule all jobs without conflicts.
 #   - **Key Concept**: Sweep Line Algorithm. Track the maximum overlap of intervals to determine the minimum CPUs.

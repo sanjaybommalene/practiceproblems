@@ -300,6 +300,263 @@ class Solution:
 # Travel to station 3. The cost is 5. Your gas is just enough to travel back to station 3.
 # Therefore, return 3 as the starting index.
 
+# ✅ 2. Partition Sorted Array into K Groups Minimizing Total Range
+
+# 🔍 Problem:
+# Given a sorted array arr and integer k, divide the array into k contiguous groups such that:
+# Cost = sum of (max - min) for each group is minimized.
+# 🧠 Intuition:
+# Since array is sorted, max - min of a group = arr[end] - arr[start].
+# Grouping fewer adjacent elements reduces cost. So split at largest gaps.
+# ✅ Approach:
+# Compute all consecutive gaps: arr[i+1] - arr[i].
+# Select (k-1) largest gaps as split points → reduces (max - min) in each group.
+# Total cost = arr[-1] - arr[0] - sum of (k-1) largest gaps.
+# ⏱ Time: O(N log N)
+# 📦 Space: O(N)
+def min_total_range(arr, k):
+    if k == 1:
+        return arr[-1] - arr[0]
+    if k >= len(arr):
+        return 0
+    
+    # Calculate differences between consecutive elements
+    gaps = []
+    for i in range(1, len(arr)):
+        gaps.append(arr[i] - arr[i-1])
+    
+    # Sort the differences in descending order
+    gaps.sort(reverse=True)
+    
+    # The sum is (total range) - (sum of k-1 largest gaps)
+    total_range = arr[-1] - arr[0]
+    sum_of_gaps = sum(gaps[:k-1])
+    
+    return total_range - sum_of_gaps
+# For example, with array [1,3,7,10] and k=2:
+# Differences: [2,4,3]
+# We remove the (k-1) largest gap (4), making groups [1,3] and [7,10]
+# Sum is (3-1) + (10-7) = 5, which equals (10-1) - 4 = 5
+
+# Q2. Given a number num, two adjacent digits can be swapped if their parity is the same, that is, both are odd or both are even. For example, (5, 9) have the same parity, but (6,9) do not.
+# Find the largest number that can be created. The swap operation can be applied any number of time:
+# Example
+# Let num = "7596801".
+# • Swap 5 and 9 - "7956801"
+# • Swap 7 and 9 →> "9756801"
+# • Swap 6 and 8 -> "9758601"
+# The largest value possible is "9758601"
+def largest_num_parity_swap(num_str):
+    num = list(num_str)
+    n = len(num)
+    
+    # Separate the digits into even and odd lists while preserving original order
+    evens = []
+    odds = []
+    for digit in num:
+        if int(digit) % 2 == 0:
+            evens.append(digit)
+        else:
+            odds.append(digit)
+    
+    # Sort each group in descending order
+    evens.sort(reverse=True)
+    odds.sort(reverse=True)
+    
+    # Reconstruct the number by picking from the appropriate group
+    result = []
+    even_ptr = 0
+    odd_ptr = 0
+    for digit in num:
+        if int(digit) % 2 == 0:
+            result.append(evens[even_ptr])
+            even_ptr += 1
+        else:
+            result.append(odds[odd_ptr])
+            odd_ptr += 1
+    
+    return ''.join(result)
+# Explanation
+# Separate Parity Groups: The digits of the input number are divided into two lists: one for even digits and one for odd digits. The order of digits in these lists matches their original positions in the input number.
+# Sort Groups: Each list (even and odd) is sorted in descending order. This ensures that the largest digits are at the front of their respective lists.
+# Reconstruct Number: The original number is reconstructed by iterating through each digit of the input number. For each digit, if it was even, the next largest even digit from the sorted even list is placed in its position; similarly for odd digits. This step ensures that digits are swapped only within their parity groups, adhering to the problem constraints.
+# For example, with the input "7596801":
+# Even digits extracted in order: 6, 8, 0 → sorted: 8, 6, 0
+# Odd digits extracted in order: 7, 5, 9, 1 → sorted: 9, 7, 5, 1
+# Reconstructing:
+# Original digits: 7(odd),5(odd),9(odd),6(even),8(even),0(even),1(odd)
+# Replaced with: 9,7,5,8,6,0,1 → "9758601"
+
+
+# Given an array of integers, find the maximum possible even sum of its elements.
+
+# Example Testcase: [2,3,6,-5,10,1,1]
+# Expected output: 22
+def max_even_sum(arr):
+    total_sum = sum(arr)
+    if total_sum % 2 == 0:
+        return total_sum
+    
+    # Collect all odd numbers
+    odd_numbers = [x for x in arr if x % 2 != 0]
+    if not odd_numbers:
+        return 0  # No way to make sum even if all numbers are even
+    
+    # Find the smallest absolute odd number to remove/add
+    min_abs_odd = min(abs(x) for x in odd_numbers)
+    adjusted_sum = total_sum - min_abs_odd if total_sum > 0 else total_sum + min_abs_odd
+    
+    return adjusted_sum if adjusted_sum % 2 == 0 else 0
+
+# Q2: In an API request optimization system, a sequence of binary request codes represented by requestSeq, consits of '0' and '1'. The system requires the sequence to be divided into non-overlapping, even-length segments, where each segment contains only identical request codes, either all 1's or all 0's. Implement a function to calculate the minimum number of request code flips(changing '0' to '1' or '1' to '0') required to meet the given system requirement.# 
+# Constraints:
+# 2 <= requestSeq <= 10^5
+# The length of requestSeq is even.
+# rquestSeq contains only 1's and 0's.
+# Example input #1: "11010010" . Output = 2. You can flip two 1's to get "1111000".
+# Example input #2: "101011" . Output = 2. You can flip two 0's to get "111111".
+
+def minFlips(requestSeq):
+    flips = 0
+    # Iterate through the string in steps of 2
+    for i in range(0, len(requestSeq), 2):
+        # If the pair differs, increment flips
+        if requestSeq[i] != requestSeq[i + 1]:
+            flips += 1
+    return flips
+# Since segments must be of even length and contain identical characters, the simplest approach is to assume segments of length 2 (e.g., 00 or 11), as larger even-length segments (e.g., length 4) are combinations of smaller segments.
+
+# Problem Statement
+# Given a string s, return the last substring of s in lexicographical order. A substring is a contiguous sequence of characters within the string. The last substring in lexicographical order is the one that would appear last if all possible substrings were sorted alphabetically.
+
+# Constraints:
+
+# 1 <= s.length <= 4 * 10^5
+# s contains only lowercase English letters.
+
+# Example 1: Input: s = "abab"
+# Output: "bab"
+# Explanation: Substrings are ["a", "ab", "aba", "abab", "b", "ba", "bab"]. Sorted lexicographically: ["a", "ab", "aba", "abab", "b", "ba", "bab"]. The last one is "bab".
+# Example 2: Input: s = "leetcode"
+# Output: "tcode"
+# Explanation: The last substring in lexicographical order is "tcode", starting from the letter 't'.
+def largest_substring(s):
+    max_char = max(s)
+    for i in range(len(s)):
+        if s[i] == max_char:
+            return s[i:]
+    return s
+
+def lastSubstring(s: str) -> str:
+    # Initialize pointers and max character
+    i = 0  # Current candidate for the start of the largest substring
+    j = 1  # Next position to compare
+    k = 0  # Offset for character comparison
+    n = len(s)
+    
+    while j + k < n:
+        if s[i + k] == s[j + k]:
+            # Characters match, continue comparing
+            k += 1
+        elif s[i + k] > s[j + k]:
+            # Current substring at i is larger, move j forward
+            j = j + k + 1
+            k = 0
+        else:
+            # Substring at j is larger, update i to j
+            i = max(i + k + 1, j)
+            j = i + 1
+            k = 0
+    
+    return s[i:]
+
+### ✅ **1. First Unique Character in a String**
+
+# **Problem:** Find the index of the first non-repeating character in a string.
+# **Input:** `"leetcode"`
+# **Output:** `0`
+# **Approach:** Count frequency with `Counter`, then find the first character with frequency `1`.
+from collections import Counter
+
+def first_uniq_char(s: str) -> int:
+    freq = Counter(s)  # Count each character
+    for i, ch in enumerate(s):
+        if freq[ch] == 1:  # First character with frequency 1
+            return i
+    return -1
+
+
+### ✅ **2. Remove All Adjacent Duplicates In String**
+
+# **Problem:** Remove pairs of adjacent duplicates repeatedly.
+# **Input:** `"abbaca"`
+# **Output:** `"ca"`
+# **Approach:** Use a stack to remove adjacent duplicates in one pass.
+def remove_adjacent_duplicates(s: str) -> str:
+    stack = []
+    for ch in s:
+        if stack and stack[-1] == ch:  # Remove adjacent duplicate
+            stack.pop()
+        else:
+            stack.append(ch)
+    return ''.join(stack)  # Reconstruct string from stack
+
+### ✅ **3. String Compression**
+
+# **Problem:** Compress repeated characters in-place and return new length.
+# **Input:** `["a","a","b","b","c","c","c"]`
+# **Output:** `6`
+# **Resulting Array:** `["a","2","b","2","c","3"]`
+# **Approach:** Two pointers (`read`, `write`) with compression count as string.
+def compress(chars: list[str]) -> int:
+    write = left = 0  # Two pointers
+    while left < len(chars):
+        right = left
+        # Count consecutive characters
+        while right < len(chars) and chars[right] == chars[left]:
+            right += 1
+        chars[write] = chars[left]
+        write += 1
+        count = right - left
+        if count > 0:
+            chars[write] = str(count)
+            write += 1
+        left = right
+    return write  # New length of array
+
+### ✅ **5. Check If a Word Occurs As a Prefix of Any Word in a Sentence**
+
+# **Input:** `"i love eating burger"`, searchWord: `"burg"`
+# **Output:** `4`
+# **Approach:** Split sentence and check if any word starts with `searchWord`.
+def isPrefixOfWord(sentence: str, searchWord: str) -> int:
+    words = sentence.split()
+    for i, word in enumerate(words, 1):
+        if word.startswith(searchWord):
+            return i
+    return -1
+
+### ✅ **6. Remove Duplicate Letters**
+
+# **Problem:** Remove duplicate letters so that every letter appears once and the result is smallest lexicographically.
+# **Input:** `"cbacdcbc"`
+# **Output:** `"acdb"`
+# **Approach:** Stack + Greedy + Track last occurrence and seen characters.
+def remove_duplicate_letters(s: str) -> str:
+    last_occurrence = {ch: i for i, ch in enumerate(s)}  # Last index of each char
+    stack = []
+    seen = set()
+
+    for i, ch in enumerate(s):
+        if ch in seen:
+            continue
+        # Remove chars that are greater and can appear later
+        while stack and ch < stack[-1] and i < last_occurrence[stack[-1]]:
+            removed = stack.pop()
+            seen.remove(removed)
+        stack.append(ch)
+        seen.add(ch)
+    return ''.join(stack)
 
 # Median of Two Sorted Arrays O(log(min(m, n))) , O(1)
 # Median is the middle value in a sorted list.
@@ -360,26 +617,35 @@ def findMedianSortedArrays(nums1, nums2):
 # Preprocessing: O(n log n)
 # Query Time: O(1)
 # Space: O(n log n)
+# A Sparse Table is a preprocessing technique used to answer range minimum/maximum/gcd queries in constant time O(1) after a O(n log n) preprocessing step.
+# We preprocess the array to answer min(i, j) by storing answers for all ranges of length 2^k starting at every index.
+# Let:
+# st[i][j] = minimum value in the subarray starting at index i and of length 2^j.
 import math
+
 class RMQ:
     def __init__(self, arr):
         self.n = len(arr)
-        self.k = math.floor(math.log2(self.n)) + 1
-        self.st = [[0] * self.n for _ in range(self.k)]
-        
-        # Base case: intervals of length 1
+        self.k = int(math.log2(self.n)) + 1  # max power of 2 needed
+        self.st = [[0] * self.k for _ in range(self.n)]
+
+        # Initialize st[i][0] with the original array values
         for i in range(self.n):
-            self.st[0][i] = arr[i]
-        
-        # Precompute intervals of length 2^j
-        for j in range(1, self.k):
-            for i in range(self.n - (1 << j) + 1):
-                self.st[j][i] = min(self.st[j-1][i], self.st[j-1][i + (1 << (j-1))])
-    
-    def query(self, L, R):
-        length = R - L + 1
-        j = math.floor(math.log2(length))
-        return min(self.st[j][L], self.st[j][R - (1 << j) + 1])
+            self.st[i][0] = arr[i]
+
+        # Build the Sparse Table
+        for j in range(1, self.k):  # power of 2: 2^1, 2^2, ..., 2^k
+            for i in range(self.n - (1 << j) + 1):  # valid start indices
+                # Combine two overlapping intervals of length 2^(j-1)
+                self.st[i][j] = min(
+                    self.st[i][j - 1],
+                    self.st[i + (1 << (j - 1))][j - 1]
+                )
+
+    def query(self, l, r):
+        j = int(math.log2(r - l + 1)) # max power of 2 in range size
+        return min(self.st[l][j], self.st[r - (1 << j) + 1][j])
+
 
 # Example Usage:
 arr = [2, 5, 1, 8, 3, 7]
