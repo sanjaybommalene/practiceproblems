@@ -393,22 +393,36 @@ def largest_num_parity_swap(num_str):
 # Example Testcase: [2,3,6,-5,10,1,1]
 # Expected output: 22
 def max_even_sum(arr):
-    total_sum = sum(arr)
+    total_sum = sum(num for num in arr if num > 0)
+    
     if total_sum % 2 == 0:
         return total_sum
     
-    # Collect all odd numbers
-    odd_numbers = [x for x in arr if x % 2 != 0]
-    if not odd_numbers:
-        return 0  # No way to make sum even if all numbers are even
+    # Find the smallest positive odd and largest negative odd
+    smallest_pos_odd = float('inf')
+    largest_neg_odd = -float('inf')
     
-    # Find the smallest absolute odd number to remove/add
-    min_abs_odd = min(abs(x) for x in odd_numbers)
-    adjusted_sum = total_sum - min_abs_odd if total_sum > 0 else total_sum + min_abs_odd
+    for num in arr:
+        if num % 2 != 0:
+            if num > 0 and num < smallest_pos_odd:
+                smallest_pos_odd = num
+            elif num < 0 and num > largest_neg_odd:
+                largest_neg_odd = num
     
-    return adjusted_sum if adjusted_sum % 2 == 0 else 0
+    candidates = []
+    if smallest_pos_odd != float('inf'):
+        candidates.append(total_sum - smallest_pos_odd)
+    if largest_neg_odd != -float('inf'):
+        candidates.append(total_sum + largest_neg_odd)
+    
+    return max(candidates) if candidates else 0
 
-# Q2: In an API request optimization system, a sequence of binary request codes represented by requestSeq, consits of '0' and '1'. The system requires the sequence to be divided into non-overlapping, even-length segments, where each segment contains only identical request codes, either all 1's or all 0's. Implement a function to calculate the minimum number of request code flips(changing '0' to '1' or '1' to '0') required to meet the given system requirement.# 
+# Example Testcase
+arr = [2, 3, 6, -5, 10, 1, 1]
+print(max_even_sum(arr))  # Output: 22
+
+# Q2: In an API request optimization system, a sequence of binary request codes represented by requestSeq, consits of '0' and '1'. 
+# The system requires the sequence to be divided into non-overlapping, even-length segments, where each segment contains only identical request codes, either all 1's or all 0's. Implement a function to calculate the minimum number of request code flips(changing '0' to '1' or '1' to '0') required to meet the given system requirement.# 
 # Constraints:
 # 2 <= requestSeq <= 10^5
 # The length of requestSeq is even.
@@ -427,13 +441,11 @@ def minFlips(requestSeq):
 # Since segments must be of even length and contain identical characters, the simplest approach is to assume segments of length 2 (e.g., 00 or 11), as larger even-length segments (e.g., length 4) are combinations of smaller segments.
 
 # Problem Statement
-# Given a string s, return the last substring of s in lexicographical order. A substring is a contiguous sequence of characters within the string. The last substring in lexicographical order is the one that would appear last if all possible substrings were sorted alphabetically.
-
+# Given a string s, return the last substring of s in lexicographical order. A substring is a contiguous sequence of characters within the string. 
+# The last substring in lexicographical order is the one that would appear last if all possible substrings were sorted alphabetically.
 # Constraints:
-
 # 1 <= s.length <= 4 * 10^5
 # s contains only lowercase English letters.
-
 # Example 1: Input: s = "abab"
 # Output: "bab"
 # Explanation: Substrings are ["a", "ab", "aba", "abab", "b", "ba", "bab"]. Sorted lexicographically: ["a", "ab", "aba", "abab", "b", "ba", "bab"]. The last one is "bab".
@@ -509,7 +521,7 @@ def remove_adjacent_duplicates(s: str) -> str:
 # **Resulting Array:** `["a","2","b","2","c","3"]`
 # **Approach:** Two pointers (`read`, `write`) with compression count as string.
 def compress(chars: list[str]) -> int:
-    write = left = 0  # Two pointers
+    write = left = right = 0  # Two pointers
     while left < len(chars):
         right = left
         # Count consecutive characters

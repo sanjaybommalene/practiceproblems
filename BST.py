@@ -405,6 +405,104 @@ class Solution(object):
         
         return node.val + max(left_max, right_max)  # Choose left or right path for parent
 
+   
+# Lowest Common Ancestor of a Binary Tree
+# The Lowest Common Ancestor (LCA) of two nodes in a Binary Tree is the deepest node that has both nodes as descendants (where we allow a node to be a descendant of itself).
+#      3
+#     / \
+#    5   1
+#   / \ / \
+#  6  2 0  8
+#    / \
+#   7   4
+# LCA of 5 and 1 → 3
+# LCA of 5 and 4 → 5 (since 5 is an ancestor of 4)
+# Approach to Find LCA
+# 1. Recursive DFS (Optimal)
+#   Traverse the tree recursively.
+#   If either p or q is found, return the node.
+#   If a node has both left and right subtrees returning non-null, it is the LCA.
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if not root or root == p or root == q: # If either p or q matches the current root, return the root
+            return root
+        
+        left = self.lowestCommonAncestor(root.left, p, q) # Search for p and q in the left and right subtrees.
+        right = self.lowestCommonAncestor(root.right, p, q)
+
+        if left and right: # If both subtrees return non-null, root is the LCA.
+            return root
+        return left or right  # If only one subtree returns non-null, propagate that result upwards.
+# if p and q are values
+def lca(root, v1, v2):
+    if root is None:
+        return None
+        
+    if v1<root.info and v2<root.info:
+        return lca(root.left,v1,v2)
+    
+    if v1>root.info and v2>root.info:
+        return lca(root.right,v1,v2)
+        
+    return root
+
+# Invert Binary Tree
+# Swap left child to right child
+class Solution(object):
+    def invertTree(self, root):
+        if not root:
+            return
+        temp = root.left
+        root.left = root.right
+        root.right = temp
+
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
+
+# Kth Smallest in the BST / For largest, just reverse inorder.left->right
+# Convert BST to array by Using Inorder
+class Solution(object):
+    def kthSmallest(self, root, k):
+        values = []
+        self.inorder(root, values)
+        return values[k - 1]
+    def inorder(self,root,values):
+        if not root:
+            return
+        self.inorder(root.left,values)
+        values.append(root.val)
+        self.inorder(root.right,values)
+
+# BT-Right Side View - Use BFS
+#      3
+#     / \
+#    5   1
+#   / \ / \
+#  6  2 0  8
+#    / \
+#   7   4
+class Solution:
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        res = []
+
+        q = deque()
+        q.append(root)
+
+        while q:
+            right_side = None
+
+            for _ in range(len(q)):
+                node = q.popleft()
+                if node:
+                    right_side = node
+                    q.append(node.left)
+                    q.append(node.right)
+            
+            if right_side:
+                res.append(right_side.val)
+        
+        return res
 
 # Path Sum I equal to target
 # If present or not
@@ -482,92 +580,6 @@ class Solution(object):
         
         return count
 
-   
-# Lowest Common Ancestor of a Binary Tree
-# The Lowest Common Ancestor (LCA) of two nodes in a Binary Tree is the deepest node that has both nodes as descendants (where we allow a node to be a descendant of itself).
-#      3
-#     / \
-#    5   1
-#   / \ / \
-#  6  2 0  8
-#    / \
-#   7   4
-# LCA of 5 and 1 → 3
-# LCA of 5 and 4 → 5 (since 5 is an ancestor of 4)
-# Approach to Find LCA
-# 1. Recursive DFS (Optimal)
-#   Traverse the tree recursively.
-#   If either p or q is found, return the node.
-#   If a node has both left and right subtrees returning non-null, it is the LCA.
-class Solution:
-    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
-        if not root or root == p or root == q: # If either p or q matches the current root, return the root
-            return root
-        
-        left = self.lowestCommonAncestor(root.left, p, q) # Search for p and q in the left and right subtrees.
-        right = self.lowestCommonAncestor(root.right, p, q)
-
-        if left and right: # If both subtrees return non-null, root is the LCA.
-            return root
-        return left or right  # If only one subtree returns non-null, propagate that result upwards.
-   
-# Invert Binary Tree
-# Swap left child to right child
-class Solution(object):
-    def invertTree(self, root):
-        if not root:
-            return
-        temp = root.left
-        root.left = root.right
-        root.right = temp
-
-        self.invertTree(root.left)
-        self.invertTree(root.right)
-        return root
-
-# Kth Smallest in the BST / For largest, just reverse inorder.left->right
-# Convert BST to array by Using Inorder
-class Solution(object):
-    def kthSmallest(self, root, k):
-        values = []
-        self.inorder(root, values)
-        return values[k - 1]
-    def inorder(self,root,values):
-        if not root:
-            return
-        self.inorder(root.left,values)
-        values.append(root.val)
-        self.inorder(root.right,values)
-
-# BT-Right Side View - Use BFS
-#      3
-#     / \
-#    5   1
-#   / \ / \
-#  6  2 0  8
-#    / \
-#   7   4
-class Solution:
-    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
-        res = []
-
-        q = deque()
-        q.append(root)
-
-        while q:
-            right_side = None
-
-            for _ in range(len(q)):
-                node = q.popleft()
-                if node:
-                    right_side = node
-                    q.append(node.left)
-                    q.append(node.right)
-            
-            if right_side:
-                res.append(right_side.val)
-        
-        return res
 
 # Construct Binary Tree from Preorder and Inorder Traversal
 class Solution:

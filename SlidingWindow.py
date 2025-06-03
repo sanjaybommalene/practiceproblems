@@ -58,8 +58,8 @@ class Solution(object):
         for idx, num in enumerate(nums):
             # Maintain the deque in descending order
             while q and q[-1] < num:
-                q.pop()
-            q.append(num)
+                q.pop() # removes elements from the right end of the deque
+            q.append(num) # adds to right end of the deque
             
             # Remove an Element That Is Out of the Current Window
             if idx >= k and nums[idx-k]==q[0]:

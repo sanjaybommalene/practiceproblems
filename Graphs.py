@@ -918,7 +918,7 @@ class Solution:
 # **Solution**:
 
 class Solution:
-    def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+    def allPathsSourceTarget(graph):
         n = len(graph)
         paths = []
         
@@ -1096,11 +1096,19 @@ def criticalConnections(n, connections):
 ########################################################
 # Rotting Oranges with BFS
 ########################################################
+# You are given an m x n grid where each cell can have one of three values:
+
+# 0 representing an empty cell,
+# 1 representing a fresh orange, or
+# 2 representing a rotten orange.
+# Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
+
+# Return the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.
 from collections import deque
 class Solution:
     def bfs(self, grid, q, cnt):
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        made, sec = 0, 0
+        made, sec = 0, 0 # Initialize made to count fresh oranges turned rotten and sec for time elapsed
         m, n = len(grid), len(grid[0])
 
         while q:
@@ -1110,7 +1118,7 @@ class Solution:
                 nr, nc = r + dr, c + dc
                 if 0 <= nr < m and 0 <= nc < n and grid[nr][nc] == 1:
                     q.append((nr, nc, sec + 1))
-                    grid[nr][nc] = -1
+                    grid[nr][nc] = -1 # Mark as rotten
                     made += 1
         
         return sec if made == cnt else -1
@@ -1119,12 +1127,13 @@ class Solution:
         m, n = len(grid), len(grid[0])
         cntFresh = 0
         q = deque()
-
+        # Initialize queue with rotten oranges and count fresh oranges
+        # grid[i][j] == 2 means rotten orange, grid[i][j] == 1 means fresh orange
         for i in range(m):
             for j in range(n):
-                if grid[i][j] == 2:
-                    q.append((i, j, 0))
-                    grid[i][j] = -1
+                if grid[i][j] == 2: # Rotten orange
+                    q.append((i, j, 0)) # (i, j, time)
+                    grid[i][j] = -1 # Mark as visited
                 elif grid[i][j] == 1:
                     cntFresh += 1
 
@@ -1162,9 +1171,9 @@ def alienOrder(words):
                 adj[c1].add(c2)
                 in_degree[c2] += 1
                 break
-        else:
-            if len(w1) > len(w2):
-                return ""
+            else:
+                if len(w1) > len(w2): # If w1 is longer than w2, it's invalid
+                    return ""
     
     # Initialize queue for BFS (Kahn's algorithm)
     queue = deque([c for c in chars if in_degree[c] == 0])

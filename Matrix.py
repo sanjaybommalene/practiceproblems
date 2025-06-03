@@ -68,42 +68,39 @@ def spiralOrder(matrix):
     return result
 
 # Diagonal Traversal O(mxn), O(mxn)
-# We iterate over each diagonal (d from 0 to m+n-2).
-# For each diagonal:
-# We find the starting point (row, col).
-# We collect all elements along that diagonal.
-# Depending on the parity (even/odd) of the diagonal, we reverse the elements before adding to the result.
-def findDiagonalOrder(mat):
-    if not mat or not mat[0]:
+# Observation:
+# For any element at position (i, j), the sum i + j is constant for elements on the same diagonal.
+# Diagonals with even i + j go upwards (right to left), while odd sums go downwards (left to right).
+# Steps:
+# Group elements by their diagonal sum i + j.
+# For each diagonal, reverse the order if i + j is even (to alternate directions).
+def diagonal_traverse(matrix):
+    if not matrix or not matrix[0]:
         return []
     
-    m, n = len(mat), len(mat[0])
-    res = []
+    m, n = len(matrix), len(matrix[0])
+    diagonals = [[] for _ in range(m + n - 1)]
     
-    for d in range(m + n - 1):
-        intermediate = []
-        
-        # Determine the starting row and column
-        if d < n:
-            row = 0
-            col = d
-        else:
-            row = d - n + 1
-            col = n - 1
-        
-        # Collect all elements along this diagonal
-        while row < m and col >= 0:
-            intermediate.append(mat[row][col])
-            row += 1
-            col -= 1
-        
-        # If the current diagonal is even-numbered, reverse it
+    for i in range(m): # Group elements by their diagonal sum i + j.
+        for j in range(n):
+            diagonals[i + j].append(matrix[i][j])
+    
+    result = []
+    for d in range(len(diagonals)):
         if d % 2 == 0:
-            res.extend(intermediate[::-1])
+            result += diagonals[d][::-1]  # Reverse for even diagonals
         else:
-            res.extend(intermediate)
+            result += diagonals[d]  # Keep original for odd diagonals
     
-    return res
+    return result
+
+# Example Usage
+# matrix = [
+#     [1, 2, 3],
+#     [4, 5, 6],
+#     [7, 8, 9]
+# ]
+# print(diagonal_traverse(matrix))  # Output: [1, 2, 4, 7, 5, 3, 6, 8, 9]
 
 # Set Matrix Zeros O(m × n), O(1)
 # Given an m x n integer matrix matrix, if an element is 0, set its entire row and column to 0'
@@ -217,6 +214,42 @@ class Solution:
                     dfs(i, j)  # Sink the island
         
         return count
+
+def max_area_of_island(grid):
+    if not grid or not grid[0]:
+        return 0
+    
+    max_area = 0
+    m, n = len(grid), len(grid[0])
+    
+    def dfs(i, j):
+        # Base case: out of bounds or water
+        if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] == 0:
+            return 0
+        
+        # Mark as visited
+        grid[i][j] = 0
+        
+        # Explore all 4 directions and accumulate area
+        return 1 + dfs(i+1, j) + dfs(i-1, j) + dfs(i, j+1) + dfs(i, j-1)
+    
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 1:
+                current_area = dfs(i, j)
+                max_area = max(max_area, current_area)
+    
+    return max_area
+
+# Example Usage
+# grid = [
+#     [1, 1, 0, 0, 0],
+#     [1, 1, 0, 0, 0],
+#     [0, 0, 0, 1, 1],
+#     [0, 0, 0, 1, 1]
+# ]
+# print(max_area_of_island(grid))  # Output: 4
+
 
 # Surround Regions 
 # Using BFS O(mxn),O(1)
@@ -585,26 +618,34 @@ class Solution:
 #   Move down if matrix[i][j] ≤ mid (add j+1 to count).
 def kthSmallest(matrix, k):
     n = len(matrix)
-    left, right = matrix[0][0], matrix[-1][-1]
+    low, high = matrix[0][0], matrix[-1][-1]
     
-    def count_less_equal(mid):
+    while low < high:
+        mid = (low + high) // 2
         count = 0
-        i, j = 0, n - 1  # Start from top-right corner
-        while i < n and j >= 0:
-            if matrix[i][j] > mid:
-                j -= 1  # Move left
-            else:
-                count += j + 1  # All elements in this row up to j are ≤ mid
-                i += 1  # Move down
-        return count
-    
-    while left < right:
-        mid = left + (right - left) // 2
-        if count_less_equal(mid) < k:
-            left = mid + 1  # Need larger elements
+        j = n - 1
+        
+        # Count numbers <= mid
+        for i in range(n):
+            while j >= 0 and matrix[i][j] > mid:
+                j -= 1
+            count += j + 1
+        
+        if count < k:
+            low = mid + 1
         else:
-            right = mid  # Narrow down to left half
-    return left
+            high = mid
+    
+    return low
+
+# Example Usage
+# matrix = [
+#     [1, 5, 9],
+#     [10, 11, 13],
+#     [12, 13, 15]
+# ]
+# k = 8
+# print(kthSmallest(matrix, k))  # Output: 13
 
 # Game of Life O(mxn), O(1)
 # The board is made up of an m x n grid of cells, where each cell has an initial state: live (represented by a 1) or dead (represented by a 0). Each cell interacts with its eight neighbors (horizontal, vertical, diagonal) using the following four rules (taken from the above Wikipedia article):

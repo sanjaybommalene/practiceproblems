@@ -39,7 +39,7 @@ class Solution:
         
         return not stack  # Stack must be empty at the end
     
-# Longest Valid Parenthesis -  O(n), O(n)
+# Longest Valid Parenthesis -  O(n), O(n) - Base Index
 # Append index of "(" in stack, pop and minus with present i
 # ()(())(((
 def longestValidParentheses(s: str) -> int:
@@ -50,12 +50,10 @@ def longestValidParentheses(s: str) -> int:
         if char == '(':
             stack.append(i)
         else:
-            print(stack)
             stack.pop()  # Pop the matching '(' or base index
             if not stack:
                 stack.append(i)  # New base for future substrings
             else:
-                print(stack[-1],i)
                 max_len = max(max_len, i - stack[-1])
 
     return max_len
@@ -272,7 +270,7 @@ def evaluate_expression_stack(expr: str) -> int:
             raise ValueError(f"Unknown function: {func}")
 
     import re
-    tokens = re.findall(r'\w+|[-]?\d+\.?\d*|[(),]', expr)
+    tokens = re.findall(r'\w+|[-]?\d+\.?\d*|[(),]', expr) # (r'\w+|[-]?\d+\.?\d*|[(),]',expr)
     stack = []
 
     for token in tokens:
@@ -291,6 +289,11 @@ def evaluate_expression_stack(expr: str) -> int:
             stack.append(token)
 
     return int(stack[0])
+# s = "add(1,mul(2,3))"
+# ['add', '(', '1', ',', 'mul', '(', '2', ',', '3', ')', ')']
+# ['add', '(', '1', '6']
+# ['7']
+# 7
 
 # | Approach    | Time | Space | Pros                         | Cons                        |
 # | ----------- | ---- | ----- | ---------------------------- | --------------------------- |
