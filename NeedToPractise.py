@@ -40,7 +40,7 @@ def countPrimes(n):
     return sum(is_prime)
 
 
-# 3. Valid Perfect Square (LeetCode 367)
+# 3. Valid Perfect Square (LeetCode 367) Binay Search
 # Problem: Check if num is a perfect square without sqrt.
 # Algorithm (Binary Search):
 # Use binary search to find if there exists an integer x such that x * x == num.

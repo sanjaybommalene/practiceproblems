@@ -1,0 +1,8 @@
+2025-06-17 12:00:01 INFO User logged in
+2025-06-17 12:01:45 ERROR_404 Page not found
+2025-06-17 12:02:03 ERROR_500 Internal server error
+2025-06-17 12:03:20 ERROR_404 Resource missing
+2025-06-17 12:05:00 INFO Scheduled job started
+2025-06-17 12:06:11 ERROR_403 Unauthorized access attempt
+2025-06-17 12:07:25 WARNING Low disk space
+2025-06-17 12:08:45 ERROR_500 Database connection failed

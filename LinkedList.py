@@ -250,7 +250,7 @@ class Solution:
             rev = rev.next
         return True   
 
-# Remove nth-node from linked list O(N),O(1)
+# Remove nth-node from end linked list O(N),O(1)
 def removeNthFromEnd(head, n):
     res = ListNode(0)
     res.next = head

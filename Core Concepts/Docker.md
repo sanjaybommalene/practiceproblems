@@ -74,9 +74,73 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ### **2.2 Docker Networking**
 The bridge network is the network in which containers are run by default. So that means that when I ran the ES container, it was running in this bridge network.
 - **Bridge Network**: Default network for containers (isolated communication).
+    # Create a bridge network
+    docker network create my-bridge
+
+    # Run containers on the bridge
+    docker run -d --name web --network my-bridge nginx
+    docker run -d --name db --network my-bridge redis
+
 - **Host Network**: Removes network isolation between container and host.
+      Use Case:
+
+      Eliminate network isolation for low-latency apps (e.g., video streaming).
+      Example:
+
+      bash
+      # Run a container using host networking
+      docker run -d --name web --network host nginx
+      Behavior:
+      Nginx binds directly to host’s port 80.
+      No port mapping needed (curl localhost works).
+
 - **Overlay Network**: Enables communication across multiple Docker hosts (used in Swarm/Kubernetes).
+      Use Case:
+
+      Connect containers across multiple hosts (e.g., Docker Swarm/Kubernetes).
+      Example (Docker Swarm):
+
+      bash
+      # Initialize Swarm (if not done)
+      docker swarm init
+
+      # Create an overlay network
+      docker network create -d overlay my-overlay
+
+      # Deploy services on the overlay
+      docker service create --name web --network my-overlay nginx
+      docker service create --name db --network my-overlay redis
+      Behavior:
+      Containers on different hosts communicate seamlessly.
+
 - **Macvlan Network**: Assigns a MAC address to containers, making them appear as physical devices.
+
+- **None Network**:
+      Use Case:
+
+      Disable networking for security or testing (e.g., batch processing).
+      Example:
+
+      bash
+      docker run -d --name isolated --network none alpine sleep 3600
+      Verify:
+      bash
+      docker exec isolated ping google.com  # Fails (no network)
+
+Real-World Example: Microservices
+
+bash
+# Create a bridge for frontend/backend
+docker network create app-net
+
+# Frontend (accessible via host port 3000)
+docker run -d --name frontend -p 3000:80 --network app-net nginx
+
+# Backend (only reachable by frontend)
+docker run -d --name backend --network app-net my-api
+Result:
+frontend can call backend at http://backend:5000.
+Users access frontend at http://localhost:3000.
 
 **Commands:**
 ```bash
@@ -96,16 +160,138 @@ docker run -d --net foodtrucks-net -p 5000:5000 --name foodtrucks-web youruserna
 docker run --network=my-network my-container
 ```
 
-### **2.3 Docker Storage & Volumes**
-- **Volumes**: Persistent storage managed by Docker (stored in `/var/lib/docker/volumes`).
-- **Bind Mounts**: Directly map a host directory into a container.
-- **tmpfs Mounts**: Store data in memory (non-persistent).
+Here’s a detailed breakdown of **Docker Storage & Volumes**, **Security Best Practices**, and **Scanning Tools** with actionable examples:
 
-**Commands:**
+---
+
+### **1. Docker Storage & Volumes**
+#### **A. Storage Drivers**
+Docker uses storage drivers to manage image/container data layers.  
+**Common Drivers**:
+| Driver       | Use Case                          | Performance |
+|--------------|-----------------------------------|-------------|
+| `overlay2`   | Default for Linux (recommended)   | High        |
+| `aufs`       | Legacy Linux                      | Medium      |
+| `devicemapper` | RHEL/CentOS (deprecated)        | Low         |
+| `windowsfilter` | Windows containers              | Medium     |
+
+**Check/Set Driver**:  
 ```bash
-docker volume create my-vol        # Create a volume
-docker run -v my-vol:/data my-img # Mount a volume
-docker run -v /host/path:/container/path my-img # Bind mount
+docker info | grep "Storage Driver"  # View current driver
+dockerd --storage-driver=overlay2   # Set driver (in `/etc/docker/daemon.json`)
+```
+
+#### **B. Volume Types**
+| Type          | Description                          | Example |
+|---------------|--------------------------------------|---------|
+| **Bind Mounts** | Map host dir to container (read/write). | `docker run -v /host/path:/container/path nginx` |
+| **Named Volumes** | Managed by Docker (persistent).     | `docker volume create my-vol && docker run -v my-vol:/data redis` |
+| **tmpfs**     | In-memory storage (ephemeral).       | `docker run --tmpfs /app tmpfs` |
+
+**Key Commands**:
+```bash
+docker volume ls                      # List volumes
+docker volume inspect my-vol          # Volume details
+docker run -v /data --name=temp alpine # Anonymous volume
+```
+
+#### **C. Use Cases**
+- **Persistent Data**: Database files (`/var/lib/mysql`).  
+- **Configuration**: Inject config files (`-v ./config:/etc/nginx`).  
+- **Development**: Share source code (`-v $(pwd):/app`).  
+
+---
+
+### **2. Docker Security Best Practices**
+#### **A. Principle of Least Privilege**
+- **Run as non-root**:  
+  ```dockerfile
+  FROM alpine
+  RUN adduser -D appuser && chown -R appuser /app
+  USER appuser  # Switch to non-root
+  ```
+- **Read-only filesystems**:  
+  ```bash
+  docker run --read-only alpine
+  ```
+
+#### **B. Resource Limits**
+- **CPU/Memory**:  
+  ```bash
+  docker run -it --cpus=1 --memory=512m nginx
+  ```
+- **Restart Policies**:  
+  ```bash
+  docker run --restart=on-failure:5 nginx
+  ```
+
+#### **C. Network Security**
+- **Disable inter-container comms**:  
+  ```bash
+  docker run --network=none alpine
+  ```
+- **Use user-defined bridge networks**:  
+  ```bash
+  docker network create --internal secure-net
+  ```
+
+#### **D. Secrets Management**
+- **Docker Secrets** (Swarm):  
+  ```bash
+  echo "db_password" | docker secret create db_pass -
+  docker service create --secret db_pass redis
+  ```
+- **For Standalone**: Use HashiCorp Vault or bind-mount secrets:  
+  ```bash
+  docker run -v ./secrets:/run/secrets alpine
+  ```
+
+---
+
+### **3. Docker Scanning Tools**
+#### **A. Built-in (`docker scan`)**
+Scan images for vulnerabilities (uses Snyk):  
+```bash
+docker scan nginx:latest
+```
+**Output**: Lists CVEs, fix recommendations.
+
+#### **B. Open-Source Tools**
+| Tool          | Purpose                          | Example Command |
+|---------------|-----------------------------------|-----------------|
+| **Trivy**     | Scan images/filesystems.         | `trivy image nginx:latest` |
+| **Clair**     | Static analysis (needs setup).   | `clair-scanner --ip YOUR_IP nginx:latest` |
+| **Anchore**   | Policy-based scanning.           | `anchore-cli analyze nginx:latest` |
+
+#### **C. Commercial Tools**
+- **Snyk**: Deep dependency scanning.  
+- **Aqua Security**: Runtime protection + scanning.  
+- **Prisma Cloud**: Full lifecycle security.  
+
+**Example (Aqua)**:
+```bash
+microscanner <IMAGE_ID>  # Free tier
+```
+
+---
+
+### **4. Real-World Example: Secure PostgreSQL**
+```dockerfile
+# Dockerfile
+FROM postgres:14
+USER postgres  # Non-root
+VOLUME /var/lib/postgresql/data  # Persistent data
+COPY --chown=postgres pg_hba.conf /etc/postgresql/  # Custom config
+```
+**Run Securely**:
+```bash
+docker run -d \
+  --name db \
+  -v pg_data:/var/lib/postgresql/data \
+  --memory=2g \
+  --cpus=1 \
+  --read-only \
+  postgres-secure
 ```
 
 ### **2.4 Docker Security Best Practices**
@@ -745,3 +931,65 @@ docker build -t myapp .
 docker run -p 8000:5000 myapp          # Uses default CMD
 docker run -p 8000:5000 myapp server.py # Overrides CMD
 ```
+
+Real-World Example
+
+Scenario: A microservice app with DB, cache, and API dependencies.
+Solution:
+
+yaml
+services:
+  db:
+    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      timeout: 5s
+
+  redis:
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  api:
+    build: ./api
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+Key Takeaways
+
+For simple cases: Use depends_on + healthcheck in Docker Compose.
+For complex checks: Use wait-for-it.sh or dockerize.
+Production: Combine with orchestration tools (Kubernetes/Swarm) for resilience.
+
+
+Scenario: WordPress with MySQL dependency
+
+yaml
+# wordpress/Chart.yaml
+dependencies:
+  - name: mysql
+    version: 9.4.0
+    repository: https://charts.bitnami.com/bitnami
+
+# wordpress/templates/deployment.yaml
+initContainers:
+- name: wait-for-db
+  image: busybox
+  command: ['sh', '-c', 'until mysqladmin ping -h my-mysql --silent; do sleep 2; done']
+Key Takeaways
+
+For Helm Charts: Use dependencies in Chart.yaml for external services.
+For Pod Dependencies: Use initContainers + readiness probes.
+For Complex Workflows: Use Helm hooks or operators.

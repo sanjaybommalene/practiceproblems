@@ -150,6 +150,35 @@ class Solution:
 # Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
 # Total amount you can rob = 1 + 3 = 4.
 
+# House Robber II
+# Approach
+
+# The key insight is that since the houses are circular, we can't rob both the first and last houses. Therefore, we can break the problem into two cases:
+
+# Rob houses from 0 to n-2 (excluding the last house)
+# Rob houses from 1 to n-1 (excluding the first house)
+def rob(nums):
+    if not nums:
+        return 0
+    if len(nums) == 1:
+        return nums[0]
+    
+    def simple_rob(nums):
+        prev_max = 0
+        curr_max = 0
+        for num in nums:
+            temp = curr_max
+            curr_max = max(prev_max + num, curr_max)
+            prev_max = temp
+        return curr_max
+    
+    # Case 1: Rob houses 0 to n-2
+    case1 = simple_rob(nums[:-1])
+    # Case 2: Rob houses 1 to n-1
+    case2 = simple_rob(nums[1:])
+    
+    return max(case1, case2)
+
 # Palindrome Number
 # Using Remainder
 class Solution:

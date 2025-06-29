@@ -221,3 +221,141 @@ pipeline {
 ## Conclusion
 
 Jenkins is a powerful tool for automating the software delivery process. By integrating with Git, running automated tests, building artifacts, and deploying to Kubernetes, Jenkins enables robust CI/CD pipelines. With proper configuration and troubleshooting, Jenkins can streamline your DevOps workflows.
+
+
+## Real World Example:
+pipeline {
+    agent {
+        kubernetes { // Run on Kubernetes (optional, can use `agent any` for non-K8s)
+            label 'jenkins-agent-pod'
+            yamlFile 'k8s-pod-template.yaml' // Custom pod template (optional)
+        }
+    }
+    options {
+        skipStagesAfterUnstable() // Skip further stages if current stage is unstable
+        timeout(time: 1, unit: 'HOURS') // Global timeout
+    }
+    environment {
+        // Cache directory (shared across stages)
+        CACHE_DIR = '/tmp/jenkins_cache'
+        // K8s deployment name (for monitoring)
+        DEPLOYMENT_NAME = 'my-app'
+        NAMESPACE = 'default'
+    }
+    stages {
+        // ----------------------------
+        // 1. DEPENDENCY RESOLUTION
+        // ----------------------------
+        stage('Resolve Dependencies') {
+            steps {
+                script {
+                    // Use cached dependencies if available (faster execution)
+                    if (fileExists("${env.CACHE_DIR}/dependencies.lock")) {
+                        echo "Using cached dependencies..."
+                        sh "cp -r ${env.CACHE_DIR}/. ./"
+                    } else {
+                        echo "Fetching fresh dependencies..."
+                        sh 'npm install' // Example for Node.js (replace with your tool)
+                        sh "mkdir -p ${env.CACHE_DIR} && cp -r node_modules ${env.CACHE_DIR}/"
+                        sh "touch ${env.CACHE_DIR}/dependencies.lock"
+                    }
+                }
+            }
+        }
+
+        // ----------------------------
+        // 2. BUILD (with explicit ordering dependency)
+        // ----------------------------
+        stage('Build') {
+            // Run ONLY after 'Resolve Dependencies' succeeds
+            dependsOn 'Resolve Dependencies' // Explicit ordering
+            steps {
+                sh 'mvn package' // Example for Java (replace as needed)
+            }
+        }
+
+        // ----------------------------
+        // 3. MANUAL APPROVAL STAGE
+        // ----------------------------
+        stage('Manual Approval') {
+            input {
+                message "Deploy to production?"
+                ok "Deploy"
+                submitter "admin,ops-team"
+                parameters {
+                    choice(choices: ['Yes', 'No'], name: 'CONFIRM')
+                }
+            }
+            steps {
+                echo "Approved by ${submitter}"
+            }
+        }
+
+        // ----------------------------
+        // 4. DEPLOY TO K8S (with failure handling)
+        // ----------------------------
+        stage('Deploy to Kubernetes') {
+            // Run even if previous stages failed (e.g., for cleanup)
+            when {
+                expression { params.CONFIRM == 'Yes' }
+            }
+            steps {
+                script {
+                    try {
+                        // Deploy using kubectl/helm
+                        sh 'kubectl apply -f k8s-manifests/'
+                        
+                        // Monitor deployment status
+                        timeout(time: 5, unit: 'MINUTES') {
+                            sh """
+                            kubectl rollout status deployment/${DEPLOYMENT_NAME} \
+                                -n ${NAMESPACE} \
+                                --timeout=300s
+                            """
+                        }
+                    } catch (err) {
+                        echo "Deployment failed! Initiating rollback..."
+                        // Rollback to previous version
+                        sh 'kubectl rollout undo deployment/${DEPLOYMENT_NAME} -n ${NAMESPACE}'
+                        error("Deployment failed and was rolled back") // Fail the stage
+                    }
+                }
+            }
+        }
+
+        // ----------------------------
+        // 5. POST-DEPLOY TEST (always runs)
+        // ----------------------------
+        stage('Smoke Tests') {
+            // Run even if previous stages failed
+            when {
+                expression { !currentBuild.resultIsWorseOrEqualTo('FAILURE') }
+            }
+            steps {
+                script {
+                    // Continue on failure (e.g., for non-critical tests)
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh 'npm run test:smoke'
+                    }
+                }
+            }
+        }
+    }
+
+    // ----------------------------
+    // POST-ACTIONS (Cleanup/Notifications)
+    // ----------------------------
+    post {
+        always {
+            echo "Pipeline completed with status: ${currentBuild.currentResult}"
+            // Cleanup (e.g., delete temp files)
+            sh "rm -rf ${env.WORKSPACE}/tmp"
+        }
+        failure {
+            slackSend channel: '#alerts', message: "Pipeline failed: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+        }
+        success {
+            archiveArtifacts artifacts: '**/target/*.jar' // Example for Java
+        }
+    }
+}
